@@ -3,7 +3,9 @@
 
 //Document settings and template
 #show: doc.with(
-	final: true
+	print: true,
+	thesis_description: "Hej hej!",
+	thesis_keywords: "Halloj!"
 )
 
 //Begining of document
@@ -19,12 +21,10 @@
 
 //Formatting and styling for chapters
 #pagebreak()
-#set page(numbering: "1", header: [#header()], footer: footer())
+#set page(numbering: "1", header: header(), footer: footer())
 #counter(page).update(1)
 #set heading(numbering: chapter-numbering, outlined: true)
-
 #show heading.where(level: 1): chapter-heading
-#show heading.where(level: 1): set heading(supplement: [Chapter])
 
 //Chapters
 #include "./content/chapters/introduction.typ"
@@ -36,10 +36,11 @@
 #bibliography("./content/bibliography.bib", title: "References", style: "ieee")
 
 //Appendix
-#set pagebreak(weak:false, to: none)
+#set pagebreak(to: none)
 #pagebreak()
 #show heading.where(level: 1): appendix-heading
 #show heading.where(level: 1): set heading(supplement: [Appendix])
 #set heading(numbering: "A.1")
+#set figure(numbering: appendix-figure-numbering)
 #counter(heading).update(0)
 #include "./content/appendix.typ"

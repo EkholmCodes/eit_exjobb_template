@@ -1,8 +1,8 @@
-/*A template of the degreeproject at EIT Lund University by Lucas Ekholm.
+/*
+A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in Typst 0.13
 */
 
 #import "./style.typ" : *
-#import "@preview/headcount:0.1.0": * //used for counters on figures and equations
 
 #let doc(
 	thesis_title: "A Test of eitExjobb.typ",
@@ -14,27 +14,29 @@
 	examinor: "Examinor",
 	company: [Department of Electrical and Information Technology \ Lund University],
 	thesis_description: "",
-	final: false,
+	thesis_keywords: "",
+	print: false,
 	body
 ) = {
 
 	//Set rules
 	set document(
 		title: thesis_title,
-		author: "student_name_A, student_name_B",
+		author: (student_name_A, student_name_B),
 		description: thesis_description,
-		keywords: "",
+		keywords: thesis_keywords,
 		date: auto,
 	)
 	
 	set par(
 		justify: true, 
 		first-line-indent: 8mm, 
-		spacing: 1.5em
+		spacing: 1.3em,
+		leading: 0.8em
 	)
 
 	set page(
-		paper: "a4", //If final is set to true, used for prints
+		paper: "a4",
 		margin: (
 			top: (297mm - 200mm)/2,
 			bottom: (297mm - 200mm)/2,
@@ -44,67 +46,54 @@
 		binding: left,
 		number-align: center + bottom,
 		footer-descent: 15%,
-	) if final == true
+		header-ascent: 20%
+	)
 	
 	set page(
-		paper: "a4", //If final is set to false, used for edits
-		margin: (
-			top: (297mm - 200mm)/2,
-			bottom: (297mm - 200mm)/2,
-			inside: 210mm - 125mm - 29.5mm,
-			outside: 29.5mm
-			),
-		binding: left,
-		number-align: center + bottom,
-		footer-descent: 15%,
-		header-ascent: 22mm,
-		header: align(center)[Exjobbsreport - #datetime.today().display("[year]/[month padding:none]/[day padding:none]") - page #context(here().page())],
-		background: [#rect(stroke: 0.5pt, width: 169mm, height: 239mm)]
-	) if final == false
+		background: [
+			#place(center, dy: 22.5mm)[#thesis_title - #datetime.today().display("[year]/[month padding:none]/[day padding:none]") - page #context(here().page())] 
+			#rect(stroke: 0.5pt, width: 169mm, height: 239mm)
+		]
+	) if print == true
 	
-	set text(font: "Adobe Garamond", weight: "regular", size: size_text)
-	set figure(numbering: dependent-numbering("1.1", levels: 1))
-	set math.equation(numbering: dependent-numbering("(1.1)", levels: 1))
+	//Text (brödtext)
+	set text(font: text_font, weight: "regular", size: size_text, hyphenate: true, lang: "en", ligatures: true)
+	set line(length: 100%, stroke: 1pt + lth_grey)
+
+	//Figure and equation numbering
+	set figure(numbering: figure-numbering)
+	set math.equation(numbering: equation-numbering)
 
 	//Raw text (Code)
 	set raw(block: true, align: start, tab-size: 4, theme: "Dawn.tmTheme")
-	show raw.where(block: true): block.with(
-  		fill: luma(245),
-  		inset: 10pt,
-  		radius: 4pt,
-  		width: 100%
-	)
+	show raw: set text(font: code_font)
+	show raw: set block(fill: luma(240), inset: 10pt, radius: 4pt, width: 100%)
+
+	//Captions
+	show figure.caption: set text(font: secondary_font, weight: "light", size: size_text - 1pt)
+	show figure.caption: set block(width: 75%)
 	
+	//Outline
 	set outline(depth: 2)
+
 	//Level 1 Outline
-	show outline.entry.where(level: 1): set outline.entry(fill: [#line(length: 100%, stroke: 0.2mm)])
-	show outline.entry.where(level: 1): it => {
-		set text(weight: "bold")
-		set block(above: 5mm)
-		it
-	}
+	show outline.entry.where(level: 1): set outline.entry(fill: [#line()])
+	show outline.entry.where(level: 1): set text(weight: "semibold")
+	show outline.entry.where(level: 1): set block(above: 5mm)
 
 	//Level 2 Outline
-	show outline.entry.where(level: 2): set outline.entry(fill: [#repeat(".", gap: 5pt)])
-	show outline.entry.where(level: 2): it => {
-		set block(above: 2.5mm)
-		set text(weight: "regular")
-		it
-	}
-
-	show heading.where(level: 1): reset-counter(figure.where(kind: "code"), levels: 2)
-
-	//Level 2 and 3 headings
-	show heading.where(level: 2): it => {
-		set text(size: size_sub_heading, font: "Frutiger LT Std", weight: "light")
-		set block(above: 7.5mm)
-		it
-	}
-
-	show heading.where(level: 3): it => { set text(size: size_sub_sub_heading, font: "Frutiger LT Std", weight: "light")
-	set block(above: 7.5mm)
-	it
-	}
+	show outline.entry.where(level: 2): set outline.entry(fill: [#repeat(".", gap: 2mm)])
+	show outline.entry.where(level: 2): set block(above: 2.5mm)
+	show outline.entry.where(level: 2): set text(weight: "regular")
+	
+	//Headings
+	show heading.where(level: 1): set heading(supplement: [Chapter])
+	show heading.where(level: 2): set text(size: size_sub_heading, font: secondary_font, weight: "light")
+	show heading.where(level: 2): set block(above: 7.5mm)
+	show heading.where(level: 2): set heading(supplement: [Section])
+	show heading.where(level: 3): set text(size: size_sub_sub_heading, font: secondary_font, weight: "light")
+	show heading.where(level: 3): set block(above: 7.5mm)
+	show heading.where(level: 3): set heading(supplement: [Section])
 
   	// Main title
 	page()[#align(
@@ -113,7 +102,7 @@
 			width: auto,
 			stroke: 1pt,
 			[
-				#text(thesis_title, size: size_heading, font: "Adobe Garamond")
+				#text(thesis_title, size: size_heading, font: text_font)
 				#v(1cm)
 				#text([#student_name_A \ #email_A])
 				#v(1cm)

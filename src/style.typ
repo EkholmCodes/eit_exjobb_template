@@ -4,6 +4,20 @@
 #let size_sub_sub_heading = 12pt
 #let size_text = 10pt
 
+#let text_font = "Adobe Garamond"
+#let secondary_font = "Frutiger LT Std"
+#let chapter_font = "CMU Serif"
+#let code_font = "Source Code Pro"
+
+#let lth_bronze = rgb(156, 97, 20)
+#let lth_grey = luma(30%) //rgb(77, 76, 68)
+
+#let reset-counters() = {
+	counter(figure.where(kind:table)).update(0)
+	counter(figure.where(kind:raw)).update(0)
+	counter(math.equation).update(0)
+}
+
 #let chapter-numbering(.. n) = {
 	let numbers = n.pos()
 
@@ -13,15 +27,12 @@
 			numbering("1.1", ..numbers) 
 		}
 }
-#let figure-numbering(.. n) = {
-	let hdr = counter(heading).get().first()
-	let num = query(selector(heading).before(here())).last().numbering
-	numbering(num, hdr, n.pos().first())
-}
 
-#let equation-numbering(n) = {
-	numbering("(1.1)", counter(heading).get().at(0), n)
-}
+#let figure-numbering(n) = numbering("1.1", counter(heading).get().first(), n)
+#let appendix-figure-numbering(n) = numbering("A.1", counter(heading).get().first(), n)
+
+#let equation-numbering(n) = numbering("(1.1)", counter(heading).get().first(), n)
+#let appendix-equation-numbering(n) = numbering("(A.1)", counter(heading).get().first(), n)
 
 #let footer() = {
 	context {
@@ -36,13 +47,13 @@
 }
 
 #let header() = {
-	set text(size: size_text, font: "Frutiger LT std", weight: "light")
+	set text(size: size_text - 1pt, font: secondary_font, weight: "light")
+	set par(spacing: 0pt)
 	context {
 		let has-heading = query(heading.where(level: 1)).any(it => it.location().page() == here().page())
 		if(has-heading){
 			none
 		}
-
 		else{
 			let heading = query(selector(heading.where(level: 1)).before(here())).last()
 			if calc.even(counter(page).get().at(0)) {
@@ -58,70 +69,72 @@
 			    	#counter(page).display()
 			    ]
 			}
-			v(-1em)
-			line(length: 100%, stroke: 0.2mm)
+			v(0.5em)
+			line()
 		}
 	}
 }
 
 #let front-matter-heading(it) = {
 	pagebreak()
+	reset-counters()
 	set align(right)
-	v(2.5cm)
-	block()[
+	v(20mm)
+	block(below: 15mm)[
 		#block()[
-			#line(length: 100%)
+			#line()
 		]
 		#v(0.5mm)
 		#block()[
-			#text(size: 18pt, font: "Frutiger LT std", weight: "light", it.body)
+			#text(size: 18pt, font: secondary_font, weight: "light", fill: lth_grey, it.body)
 		]
 		#v(0.5mm)
 		#block()[
-		#line(length: 100%)
+		#line()
 		]
 	]
-	v(15mm)
 }
 
 #let chapter-heading(it) = {
 	pagebreak()
-	set block(spacing: 0pt, stroke: 0pt)
+	reset-counters()
+	set text(fill: lth_grey, hyphenate: false)
 	set align(right)
-	v(25mm - size_chapter)
-	block()[
-		#block()[
-			#box(width: 1fr, line(length: 100%))
+	set par(leading: 0.3em)
+	//set box(stroke: 1pt)
+	//set block(stroke: 1pt)
+	v(20mm - size_chapter)
+	block(below: 15mm)[
+		#box()[
+			#box(width: 1fr, line())
 			#box(width: auto, [
-				#text(size: size_text, font: "Frutiger LT Std", weight: "light", "Chapter") 
-				#text(size: size_chapter, font: "Times New Roman", weight: "thin", counter(heading).display(it.numbering))
-			])
+				#text(size: size_text, font: chapter_font, weight:  "regular", "Chapter") 
+				#text(size: size_chapter, font: chapter_font, weight: "regular", counter(heading).display(it.numbering))])
+			#v(5mm)
 		]
-		#v(7mm)
-		#block()[#text(size: size_heading, font: "Frutiger LT Std", weight: "light", it.body)]
-		#v(7mm)
-		#block()[#line(length: 100%)]
+		#box()[#text(size: size_heading, font: secondary_font, weight: "light", it.body) #v(5mm)]
+		#box()[#line()]
 	]
-	v(15mm)
 }
 
 #let appendix-heading(it) = {
-	counter(figure).update(0)
-	set block(spacing: 0pt, stroke: 0pt)
+	pagebreak()
+	reset-counters()
+	set text(fill: lth_grey)
+	set block(spacing: 0pt)
 	set align(right)
-	v(25mm - size_chapter)
-	block()[
+	v(20mm - size_chapter)
+	block(below: 15mm)[
 		#block()[
 			#box(width: 1fr, line(length: 100%))
 			#box(width: auto, [
-				#text(size: size_text, font: "Frutiger LT Std", weight: "light", "Appendix") 
-				#text(size: size_chapter, font: "Adobe Garamond", weight: "regular", counter(heading).display(it.numbering))
+				#text(size: size_text, font: secondary_font, weight: "regular", "Appendix") 
+				#text(size: size_chapter, font: text_font, weight: "regular", counter(heading).display(it.numbering))
 			])
 		]
 		#v(7mm)
-		#block()[#text(size: size_heading, font: "Frutiger LT Std", weight: "light", it.body)]
+		#block()[#text(size: size_heading, font: secondary_font, weight: "light", it.body)]
 		#v(7mm)
-		#block()[#line(length: 100%)]
+		#block()[#line()]
 	]
-	v(15mm)
 }
