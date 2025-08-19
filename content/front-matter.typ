@@ -65,9 +65,6 @@ The next few pages are examples of how to use the outlines for figures, headings
 #outline(title: [List of Figures], target: figure.where(kind: image))
 
 #pagebreak()
-#outline(title: [List of Tables], target: figure.where(kind: table))
-
-#pagebreak()
 = Abbreviations
 
 Here is an example of how to make a simple abbreviations list.

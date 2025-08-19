@@ -36,8 +36,8 @@
 #bibliography("./content/bibliography.bib", title: "References", style: "ieee")
 
 //Appendix
-#set pagebreak(to: none)
 #pagebreak()
+#set pagebreak(to: none)
 #show heading.where(level: 1): appendix-heading
 #show heading.where(level: 1): set heading(supplement: [Appendix])
 #set heading(numbering: "A.1")

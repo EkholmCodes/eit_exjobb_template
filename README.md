@@ -20,6 +20,7 @@ It provides a complete, ready-to-use structure for reports with modern styling a
 ---
 
 ## Project Structure
+```typst
 exjobb_eit_typst/ //Root folder
 │
 ├── main.typ //Project root, this is the file to compile
@@ -30,14 +31,15 @@ exjobb_eit_typst/ //Root folder
 │   │   └── example_chapter.typ
 │   ├── appendix.typ
 │   ├── bibliography.typ
-│	├── figures/
-│	│	└── example_image.jpg
+│	  ├── media/
+│	  │	└── example_image.jpg
 │   └── front-matter.typ
 │
 └── src/ //Sourcefiles
   ├── exjobb_eit.typ //The template file
   ├── style.typ //Functions for styling and numbering
   └── Dawn.tmTheme //Used for syntax highlighting
+```
 
 ---
 
@@ -53,7 +55,7 @@ brew install typst
 Download the latest release from [Typst GitHub releases](https://github.com/typst/typst/releases) and add it to your PATH.
 
 ### Online
-Typst can also be run on their online editor.
+Typst can also be run on their [online editor](https://typst.app).
 
 ### 2. Compile the project
 For a single compilation. In the root folder, run 
@@ -62,7 +64,7 @@ typst compile main.typ
 ```
 For continous compilation. In the root folder, run
 ```bash
-typst watch main.typst
+typst watch main.typ
 ```
 This will generate **main.pdf**.
 
@@ -73,12 +75,20 @@ This will generate **main.pdf**.
 * Edit **appendix.typ**.
 * Add sources to **bibliography.bib**
 
+#### The print parameter
+When writing your thesis, you can set print to either true or false. True will print your document to a G5 and bind on the right side. False will print the document to an A4, bind to the left and show a box around the G5 box.
+
 ### 4. Customization
 * **Styling**: Edit **style.typ** to adjust numbering, headings and formatting.
 * **Template logic**: Edit **exjobb_eit.typ** to change the overall structure.
 * **Syntax highlighting**: Switch out **Dawn.tmTheme**.
 
 ### Requirements
-* [**Typst**](https://typst.com) > 0.13
+* [**Typst**](https://typst.app) > 0.13
 * A text editor of your choice.
-* **Fonts**: Adobe Garamond, Frutiger LT Std, CMU Serif, Source Code Pro. If any of these are unavailable to you, you can change the desired font in **style.typ**
+* **Fonts**: 
+  * Adobe Garamond (main text)
+  * Frutiger LT Std (headings, figures)
+  * Georgia Pro (chapter numbers, page numbers)
+  * Source Code Pro (code blocks) 
+If any of these are unavailable to you, you can change the desired font in **style.typ**.

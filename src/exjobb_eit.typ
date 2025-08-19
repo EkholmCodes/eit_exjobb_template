@@ -32,7 +32,13 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 		justify: true, 
 		first-line-indent: 8mm, 
 		spacing: 1.3em,
-		leading: 0.8em
+		leading: 0.5em
+	)
+
+	set page(
+		number-align: center + bottom,
+		footer-descent: 0% + 7.5mm,
+		header-ascent: 0% + 7.5mm
 	)
 
 	set page(
@@ -43,35 +49,42 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 			inside: 29.5mm,
 			outside: 210mm - 125mm - 29.5mm
 			),
-		binding: left,
-		number-align: center + bottom,
-		footer-descent: 15%,
-		header-ascent: 20%
-	)
-	
-	set page(
+		binding: right,
 		background: [
-			#place(center, dy: 22.5mm)[#thesis_title - #datetime.today().display("[year]/[month padding:none]/[day padding:none]") - page #context(here().page())] 
-			#rect(stroke: 0.5pt, width: 169mm, height: 239mm)
+			#place(center, dy: 22.5mm)["#thesis_title" - #datetime.today().display("[year]/[month padding:none]/[day padding:none]") - page #context(here().page())]
+			#place(horizon, dx: 10mm, rotate(-90deg, "G5 box"))
+			#rect(stroke: 0.2mm, width: 169mm, height: 239mm)
 		]
+	) if print == false
+
+	set page(
+		paper: "sis-g5",
+	 	margin: (
+    		top: (239mm - 200mm)/2,
+    		bottom: (239mm - 200mm)/2,
+    		inside: 29.5mm,
+    		outside: 169mm - 125mm - 29.5mm,
+  			),
+		binding: right,
 	) if print == true
 	
 	//Text (brödtext)
 	set text(font: text_font, weight: "regular", size: size_text, hyphenate: true, lang: "en", ligatures: true)
-	set line(length: 100%, stroke: 1pt + lth_grey)
+	set line(length: 100%, stroke: 0.3mm + lth_grey)
 
-	//Figure and equation numbering
+	//Figures
 	set figure(numbering: figure-numbering)
+	show figure.caption: set text(font: secondary_font, weight: "light", size: size_text - 2pt)
+	show figure.caption: set block(width: 75%)
+
+	//Equations
 	set math.equation(numbering: equation-numbering)
+	show math.equation: set text(font: "New Computer Modern")
 
 	//Raw text (Code)
 	set raw(block: true, align: start, tab-size: 4, theme: "Dawn.tmTheme")
 	show raw: set text(font: code_font)
 	show raw: set block(fill: luma(240), inset: 10pt, radius: 4pt, width: 100%)
-
-	//Captions
-	show figure.caption: set text(font: secondary_font, weight: "light", size: size_text - 1pt)
-	show figure.caption: set block(width: 75%)
 	
 	//Outline
 	set outline(depth: 2)
@@ -89,7 +102,7 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 	//Headings
 	show heading.where(level: 1): set heading(supplement: [Chapter])
 	show heading.where(level: 2): set text(size: size_sub_heading, font: secondary_font, weight: "light")
-	show heading.where(level: 2): set block(above: 7.5mm)
+	show heading.where(level: 2): set block(above: 10mm)
 	show heading.where(level: 2): set heading(supplement: [Section])
 	show heading.where(level: 3): set text(size: size_sub_sub_heading, font: secondary_font, weight: "light")
 	show heading.where(level: 3): set block(above: 7.5mm)
@@ -121,6 +134,8 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 
 	//Print page
 	page()[
+		#set text(size: 10pt)
+		#set par(leading: 0.5em)
 		#align(bottom + left,
 			[
 				#sym.copyright #datetime.today().year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund
