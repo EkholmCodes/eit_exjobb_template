@@ -79,7 +79,7 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 
 	//Equations
 	set math.equation(numbering: equation-numbering)
-	show math.equation: set text(font: "New Computer Modern")
+	show math.equation: set text(font: "New Computer Modern Math")
 
 	//Raw text (Code)
 	set raw(block: true, align: start, tab-size: 4, theme: "Dawn.tmTheme")

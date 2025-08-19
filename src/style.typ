@@ -29,8 +29,11 @@
 }
 
 #let figure-numbering(n) = numbering("1.1", counter(heading).get().first(), n)
+
 #let equation-numbering(n) = numbering("(1.1)", counter(heading).get().first(), n)
+
 #let appendix-figure-numbering(n) = numbering("A.1", counter(heading).get().first(), n)
+
 #let appendix-equation-numbering(n) = numbering("(A.1)", counter(heading).get().first(), n)
 
 #let footer() = {
@@ -60,15 +63,15 @@
 					#text(font: chapter_font, counter(page).display())
 					#h(1fr)
 			    	#text(font: secondary_font, weight: "light", [#heading.body])
-			    ]
+			    	]
 			} else {
-			    box(width: 100%)[
+				box(width: 100%)[
 			    	#text(font: secondary_font, weight: "light", [#heading.body])
 			    	#h(1fr)
 			    	#text(font: chapter_font, counter(page).display())
 			    ]
 			}
-			v(0.5em)
+			v(2mm)
 			line()
 		}
 	}
@@ -79,14 +82,9 @@
 	reset-counters()
 	set text(fill: lth_grey, hyphenate: false)
 	set align(right)
-	set par(leading: 0.3em)
-	v(20mm)
+	v(22.5pt + size_chapter_nbr)
 	block(below: 15mm)[
-		#stack(dir: ttb, spacing: 7mm,
-			line(),
-			text(size: size_heading, font: secondary_font, weight: "light", it.body),
-			line()
-		)
+		#stack(dir: ttb, spacing: 7mm, line(), text(size: size_heading, font: secondary_font, weight: "light", it.body), line())
 	]
 }
 
@@ -95,7 +93,6 @@
 	reset-counters()
 	set text(fill: lth_grey, hyphenate: false)
 	set align(right)
-	set par(leading: 0.3em)
 	v(size_chapter_nbr)
 	block(below: 15mm)[
 		#stack(dir: ttb, spacing: 7mm,
@@ -112,7 +109,6 @@
 	reset-counters()
 	set text(fill: lth_grey, hyphenate: false)
 	set align(right)
-	set par(leading: 0.3em)
 	v(size_chapter_nbr)
 	block(below: 15mm)[
 		#stack(dir: ttb, spacing: 7mm,
