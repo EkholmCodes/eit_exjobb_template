@@ -139,3 +139,5 @@ Typst has a dedicated site for its documentation, this contains everything from 
 == Test Section
 
 #lorem(700)
+
+#rect(width: 100%, height: 100%, fill: gray)[#align(center + horizon, text(size:25pt, fill: white, "These are the margins!"))]

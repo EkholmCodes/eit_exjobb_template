@@ -3,9 +3,31 @@
 
 //Document settings and template
 #show: doc.with(
-	print: true,
-	thesis_description: "Hej hej!",
-	thesis_keywords: "Halloj!"
+	print: false,
+	title: "A Test of EIT_exjobb.typ",
+	description: "Hej hej!",
+	keywords: "Halloj!",
+	examinor: "Some examinor",
+	supervisor: "Some supervisor",
+	authors: (
+		(
+			name: "Student A",
+			affiliation: none,
+			email: "Student.A@mail.com"
+		),
+		(
+			name: "Student B",
+			affiliation: "Lund University",
+			email: "Student.B@mail.com"
+		),
+		(
+			name: "Student C",
+			affiliation: "SAAB",
+			email: "Student.C@mail.com"
+		)
+	),
+	company: "Some company",
+	front_images: (("../content/media/LTH_RGB_ENG.png"), ("../content/media/LTH_BLACK_ENG.png"), ("../content/media/Lunds_universitet_C2r_RGB.png"))
 )
 
 //Begining of document
@@ -36,11 +58,11 @@
 #bibliography("./content/bibliography.bib", title: "References", style: "ieee")
 
 //Appendix
-#pagebreak()
+#counter(heading).update(0)
 #set pagebreak(to: none)
 #show heading.where(level: 1): appendix-heading
 #show heading.where(level: 1): set heading(supplement: [Appendix])
 #set heading(numbering: "A.1")
 #set figure(numbering: appendix-figure-numbering)
-#counter(heading).update(0)
+#pagebreak()
 #include "./content/appendix.typ"

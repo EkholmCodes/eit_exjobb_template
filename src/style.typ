@@ -4,7 +4,7 @@
 #let size_sub_sub_heading = 12pt
 #let size_text = 10pt
 
-#let text_font = "Adobe Garamond"
+#let text_font = "Adobe Garamond Pro"
 #let secondary_font = "Frutiger LT Std"
 #let chapter_font = "Georgia Pro"
 #let code_font = "Source Code Pro"

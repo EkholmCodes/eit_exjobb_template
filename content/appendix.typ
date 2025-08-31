@@ -1,3 +1,6 @@
+#import "@preview/codly:1.3.0": *
+//#import "@preview/codly-languages:0.1.1": *
+
 = Some extra material <extra-material>
 
 Here begins the backmatter! Below is an example of how to include code. You can manually change the syntax highlightning by switching out the ".tmTheme" file the *src* folder. See @project_structure.
@@ -21,5 +24,12 @@ Here begins the backmatter! Below is an example of how to include code. You can 
 	```]),
 	caption: "Code snippet for insertionsort written in C."
 )
+
+//#show: codly-init.with()
+//#show raw: set block()
+//#codly(languages: codly-languages)
+```python
+print("hello world!")
+```
 
 To write raw text you follow the same approach as in Markdown. Three backticks to mark the start followed by another three to mark the end, specifiy the language with its label @MarkdownSupport. For the example above, see *appendix.typ*.
