@@ -5,18 +5,18 @@
 #let size_text = 10pt
 
 #let text_font = "Adobe Garamond Pro"
-#let secondary_font = "Frutiger LT Std"
+#let secondary_font = "Neue Frutiger World"
 #let chapter_font = "Georgia Pro"
 #let code_font = "Source Code Pro"
+#let math_font = "New Computer Modern Math"
 
-#let lth_bronze = rgb(156, 97, 20)
+#let lth_bronze = cmyk(9%, 57%, 100%, 41%)
+#let lth_blue = cmyk(100%, 85%, 5%, 22%)
 #let lth_grey = luma(30%) //rgb(77, 76, 68)
 
-#let reset-counters() = {
-	counter(figure.where(kind:table)).update(0)
-	counter(figure.where(kind:raw)).update(0)
-	counter(math.equation).update(0)
-}
+#let text_grey = luma(20%)
+#let heading_grey = luma(30%)
+#let caption_grey = luma(40%)
 
 #let chapter-numbering(.. n) = {
 	let numbers = n.pos()
@@ -29,33 +29,26 @@
 }
 
 #let figure-numbering(n) = numbering("1.1", counter(heading).get().first(), n)
-
 #let equation-numbering(n) = numbering("(1.1)", counter(heading).get().first(), n)
 
 #let appendix-figure-numbering(n) = numbering("A.1", counter(heading).get().first(), n)
-
 #let appendix-equation-numbering(n) = numbering("(A.1)", counter(heading).get().first(), n)
 
 #let footer() = {
 	set text(font: chapter_font)
 	context {
 		let has-heading = query(heading.where(level: 1)).any(it => it.location().page() == here().page())
-		if(has-heading){
-			align(center)[#counter(page).display()]
-		}
-		else{
-			none
-		}
+		if(has-heading){align(center)[#counter(page).display()]}
+		else{none}
 	}
 }
 
 #let header() = {
 	set par(spacing: 0pt)
+	set text(size: size_text - 1pt)
 	context {
 		let has-heading = query(heading.where(level: 1)).any(it => it.location().page() == here().page())
-		if(has-heading){
-			none
-		}
+		if(has-heading){none}
 		else{
 			let heading = query(selector(heading.where(level: 1)).before(here())).last()
 			if calc.even(counter(page).get().at(0)) {
@@ -79,8 +72,8 @@
 
 #let front-matter-heading(it) = {
 	pagebreak()
-	reset-counters()
-	set text(fill: lth_grey, hyphenate: false)
+	set line(stroke: 1pt)
+	set text(fill: heading_grey, hyphenate: false)
 	set align(right)
 	v(22.5pt + size_chapter_nbr)
 	block(below: 15mm)[
@@ -90,8 +83,8 @@
 
 #let chapter-heading(it) = {
 	pagebreak()
-	reset-counters()
-	set text(fill: lth_grey, hyphenate: false)
+	set line(stroke: 1pt)
+	set text(fill: heading_grey, hyphenate: false)
 	set align(right)
 	v(size_chapter_nbr)
 	block(below: 15mm)[
@@ -106,8 +99,8 @@
 
 #let appendix-heading(it) = {
 	pagebreak()
-	reset-counters()
-	set text(fill: lth_grey, hyphenate: false)
+	set line(stroke: 1pt)
+	set text(fill: heading_grey, hyphenate: false)
 	set align(right)
 	v(size_chapter_nbr)
 	block(below: 15mm)[

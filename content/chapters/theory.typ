@@ -1,4 +1,5 @@
 #import "@preview/zap:0.2.1"
+#import "../../src/exjobb_eit.typ": flex-caption
 
 = A word on references, figures and other basics
 
@@ -111,7 +112,7 @@ In @electrical-circuit I have used what Typst calls a "package". This package (c
 	    wire((3, 0), (3, -1))
 	    wire((3,0), "q2.b")
 	}),
-    caption: "The current mirror. This mirror is in the 'above' configuration, pushing current down into the load.",
+    caption: flex-caption("The current mirror. This mirror is in the 'above' configuration, pushing current down into the load.", "Current mirror."),
 )<electrical-circuit>
 
 == Math
@@ -140,4 +141,6 @@ Typst has a dedicated site for its documentation, this contains everything from 
 
 #lorem(700)
 
-#rect(width: 100%, height: 100%, fill: gray)[#align(center + horizon, text(size:25pt, fill: white, "These are the margins!"))]
+#rect(width: 100%, height: 100%, fill: gray)[
+	#align(center + horizon, text(size:25pt, fill: white, "These are the margins!"))
+	]
