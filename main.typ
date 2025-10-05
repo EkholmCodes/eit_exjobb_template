@@ -27,7 +27,8 @@
 		)
 	),
 	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?], [Another affiliation]),
-	front_images: (("../content/media/LTH_RGB_ENG.png"), ("../content/media/LTH_BLACK_ENG.png"))
+	front_images: (("../content/media/LTH_RGB_ENG.png"), ("../content/media/LTH_BLACK_ENG.png")),
+	date: datetime(year: 2021, month: 10, day: 12)
 )
 
 //Frontmatter

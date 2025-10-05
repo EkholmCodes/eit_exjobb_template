@@ -59,6 +59,7 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 	description: none,
 	keywords: none,
 	print: false,
+	date: datetime.today(),
 	body
 ) = {
 
@@ -101,7 +102,7 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 		background: [
 			#set text(size: 12pt)
 			#place(center, dy: 22.5mm)[
-			"#short-title" - #datetime.today().display("[year]/[month padding:none]/[day padding:none]") - page #context(counter(page).get().at(0)) - #sym.hash#context(here().page())]
+			"#short-title" - #date.display("[year]/[month padding:none]/[day padding:none]") - page #context(counter(page).get().at(0)) - #sym.hash#context(here().page())]
 			#place(horizon, dx: 10mm, rotate(-90deg, "G5 box"))
 			#rect(stroke: 0.2mm, width: 169mm, height: 239mm)
 		]) if print == false
@@ -116,8 +117,16 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 
 	//Figures
 	set figure(numbering: figure-numbering)
+	show figure.where(kind: table): set figure.caption(position: top)
 	show figure.caption: set text(font: secondary_font, weight: "light", size: size_text - 2pt)
 	show figure.caption: set block(width: 75%)
+	show figure.caption: it => {
+		block()[
+			#strong([#it.supplement #context{it.counter.display(it.numbering)}])
+			#it.separator 
+			#it.body
+		]
+	}
 
 	//Equations
 	set math.equation(numbering: equation-numbering)
@@ -138,9 +147,9 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 	set outline(depth: 2)
 	show outline.entry.where(level: 1): set outline.entry(fill: [#align(center, line(stroke: text_grey, length: 100% - 5mm))])
 	show outline.entry.where(level: 1): set text(weight: "semibold")
-	show outline.entry.where(level: 1): set block(above: 5mm)
+	show outline.entry.where(level: 1): set block(above: 1.6em)
 	show outline.entry.where(level: 2): set outline.entry(fill: [#align(center, block(width: 100% - 5mm, repeat(".", gap: 2mm)))])
-	show outline.entry.where(level: 2): set block(above: 3mm)
+	show outline.entry.where(level: 2): set block(above: 0.8em)
 	show outline.entry.where(level: 2): set text(weight: "regular")
 	show outline: it => {
 	  in-outline.update(true)
@@ -151,10 +160,10 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 	//Headings
 	show heading.where(level: 1): set heading(supplement: [Chapter])
 	show heading.where(level: 2): set text(size: size_sub_heading, font: secondary_font, fill: heading_grey,  weight: "light")
-	show heading.where(level: 2): set block(above: 10mm)
+	show heading.where(level: 2): set block(above: 2em)
 	show heading.where(level: 2): set heading(supplement: [Section])
 	show heading.where(level: 3): set text(size: size_sub_sub_heading, fill: heading_grey, font: secondary_font, weight: "light")
-	show heading.where(level: 3): set block(above: 7.5mm)
+	show heading.where(level: 3): set block(above: 1.5em)
 	show heading.where(level: 3): set heading(supplement: [Section])
 
 	//Figures out which heading to place depending on the state of the document
@@ -185,7 +194,7 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 							#stack(spacing: 3mm, 
 								author.name, 
 								if (author.affiliation == none){v(3mm)} else {author.affiliation},
-								emph(author.email)
+								if (author.email == none){v(3mm)} else {emph(author.email)}
 							)
 						])
 					)),
@@ -193,17 +202,18 @@ A template of the degreeproject at EIT Lund University by Lucas Ekholm. Made in 
 					stack(dir: ttb, spacing: 5mm, ..supervisors,
 						if (examinor == none){v(5mm)} else {[Examinor: #examinor]},
 					),
-					datetime.today().display("[month repr:long] [day padding:none], [year]")
+					date.display("[month repr:long] [day padding:none], [year]")
 				),
 			grid(column-gutter: 1cm, columns: front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 3cm)))
 		)
 	])
+
 	//Print page
 	page()[
 		#set par(leading: 0.5em)
 		#align(bottom + left,
 			[
-				#sym.copyright #datetime.today().year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund
+				#sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund
 			]
 		)
 	]
