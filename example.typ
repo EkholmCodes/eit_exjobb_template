@@ -26,7 +26,7 @@
 	),
 	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?], [Another affiliation]),
 	front_images: (("../content/media/LTH_RGB_ENG.png"), ("../content/media/LTH_BLACK_ENG.png")),
-	date: datetime(year: 2025, month: 10, day: 20)
+	date: datetime(year: 2022, month: 10, day: 22)
 )
 
 #show: frontmatter
@@ -102,7 +102,7 @@ The equation above is @divergence. This is @intro but below is @test and below t
 			max: 1.5
 		)
 	),
-	caption: flexCaption([An example figure using the package Lilaq [SÄTT REFERENS!]], [Vector field figure.])
+	caption: flexCaption([An example figure using the package lilaq. @lilaq], [An example figure using the package lilaq.])
 )
 
 == Another test section
@@ -157,7 +157,7 @@ Above @figureB is next to @figureC. By using the ```typst #flexCaption(long capt
 	caption: "Fonts used."
 )
 
-#bibliography("./content/bibliography.bib", title: "References", full: true)
+#bibliography("bibliography.bib", title: "References", full: true)
 
 #show: backmatter
 
