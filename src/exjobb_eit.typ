@@ -10,7 +10,7 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-//------------------------------TEXT AND COLOR DEFINITIONS------------------------------
+//---------------------------------------------|	TEXT AND COLOR DEFINITIONS	|---------------------------------------------
 
 //Text sizes
 #let size_main = 10pt
@@ -18,14 +18,14 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let size_heading = 16pt
 #let size_sub_heading = 14pt
 #let size_sub_sub_heading = 12pt
-#let size_chapter_nbr = 40pt
+#let size_chapter_nbr = 1.5cm
 
 //Fonts
 #let font_main = "Adobe Garamond Pro"
 #let font_secondary = "Lato"
-#let font_chapter_nbr = "Crimson Pro"
+#let font_chapter_nbr = "Libertinus Math"
 #let font_code = "Source Code Pro"
-#let font_math = "Garamond-Math"
+#let font_math = "Libertinus Math"
 
 //Colors
 #let lth_bronze = cmyk(9%, 57%, 100%, 41%)
@@ -37,7 +37,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let grey_heading = luma(5%)
 #let grey_tertiary = luma(20%)
 
-//------------------------------STYLING------------------------------
+//---------------------------------------------|	STYLINGS	|---------------------------------------------
 
 //Logic for numbering
 #let chapter-numbering(.. n) = {
@@ -216,7 +216,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 	  }
 }
 
-//------------------------------DOCUMENT TEMPLATE------------------------------
+//---------------------------------------------|	DOCUMENT TEMPLATE	|---------------------------------------------
 
 //Template function
 #let doc(
@@ -393,11 +393,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 	//Print page
 	page()[
 		#set par(leading: 0.5em)
-		#align(bottom + left,
-			[
-				#sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund
-			]
-		)
+		#place(bottom + left, [#sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund])
 	]
 	//Beginning of document
 	counter(page).update(1)

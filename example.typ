@@ -1,4 +1,5 @@
 #import "src/exjobb_eit.typ": *
+#import "@preview/lilaq:0.5.0" as lq
 
 #show: doc.with(
 	print: false,
@@ -25,7 +26,7 @@
 	),
 	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?], [Another affiliation]),
 	front_images: (("../content/media/LTH_RGB_ENG.png"), ("../content/media/LTH_BLACK_ENG.png")),
-	date: datetime(year: 2020, month: 03, day: 20)
+	date: datetime(year: 2025, month: 10, day: 20)
 )
 
 #show: frontmatter
@@ -64,17 +65,45 @@
 
 #lorem(100)
 
-$ "div" bold(A) =^Delta lim_(Delta v -> 0) frac(integral.surf bold(A) dot d bold(s), Delta v) $ <divergence>
+$ "div" bold(A) =^Delta lim_(Delta v -> 0) frac(integral.surf_S bold(A) dot d bold(s), Delta v) $ <divergence>
 
-The equation above is @divergence. This is @intro but below is @test.
+The equation above is @divergence. This is @intro but below is @test and below that is @test2.
 
 == Test section <test>
 
 #lorem(50)
 
-=== A section which won't appear in the outline
+=== A section which won't appear in the outline <test2>
 
 #lorem(50)
+
+#figure(
+	lq.diagram(
+		lq.quiver(
+			lq.linspace(-4, 4, num: 15),
+			lq.linspace(-4, 4, num: 15),
+			(x, y) => {
+				let (a, b) = (2, 2)
+				x = x - a
+				y = y - b
+				let r = ((calc.pow(x, 2) + calc.pow(y, 2)))
+				let scale = 30/(r + 30)
+				if r == 0 {
+					return (a, b)
+				}
+				else{
+					return (scale*x/calc.sqrt(r), scale*y/calc.sqrt(r))
+				}
+			},
+			color: (x, y, u, v) => calc.norm(u, v),
+			map: lq.color.map.lipari,
+			scale: 0.5,
+			min: 0,
+			max: 1.5
+		)
+	),
+	caption: flexCaption([An example figure using the package Lilaq [SÄTT REFERENS!]], [Vector field figure.])
+)
 
 == Another test section
 
