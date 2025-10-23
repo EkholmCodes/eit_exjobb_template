@@ -2,7 +2,7 @@
 #import "@preview/lilaq:0.5.0" as lq
 
 #show: doc.with(
-	print: false,
+	print: true,
 	title: "A Test of exjobb_eit.typ",
 	short-title: "A shorter title",
 	examinor: "Some examinor",
@@ -65,9 +65,11 @@
 
 #lorem(100)
 
-$ "div" bold(A) =^Delta lim_(Delta v -> 0) frac(integral.surf_S bold(A) dot d bold(s), Delta v) $ <divergence>
+$ "div" bold(A) := lim_(Delta v arrow 0) frac(integral.surf_S bold(A) dot d bold(s), Delta v) $ <divergence>
 
-The equation above is @divergence. This is @intro but below is @test and below that is @test2.
+$ nabla times bold(B) = mu_0(bold(J) + epsilon_0 frac(partial bold(E), partial t)) $
+
+One equation above is @divergence. This is @intro but below is @test and below that is @test2.
 
 == Test section <test>
 
@@ -102,8 +104,8 @@ The equation above is @divergence. This is @intro but below is @test and below t
 			max: 1.5
 		)
 	),
-	caption: flexCaption([An example figure using the package lilaq. @lilaq], [An example figure using the package lilaq.])
-)
+	caption: flexCaption([An example figure using the package Lilaq. @lilaq], [An example figure using the package Lilaq.])
+) <vector-field>
 
 == Another test section
 
@@ -157,14 +159,62 @@ Above @figureB is next to @figureC. By using the ```typst #flexCaption(long capt
 	caption: "Fonts used."
 )
 
-#bibliography("bibliography.bib", title: "References", full: true)
+= A word on Typst referencing
+
+In References you can find links. @latex-guide provides a guide for past LaTeX users on the differences between the two typesetting languages, including what's native or not native, which macros map to which function etc. @cite and @bibliography links to information on how to cite and reference different sources. Typst includes support for both its native YAML-based format and BibTeX. @universe gives a link to the Typst Universe. On this page you can find packages which aid in your workflow, both in terms of styling and automation. For example @vector-field was made using lilaq, a package used to make graphs inside the Typst environment. Another good package is Zap which is used to make circuit diagrams much like TikZ. @zap
+
+For documentation on all functions, markup- and styling commands, see @documentation.
+
+
+//This can also be in a seperate .bib/.yml file! Then would simply write the relative path in #bibliography("PATH", etc)
+#let bib = ```bib
+	@online{latex-guide,
+		title = {Guide for LaTeX users},
+		url = {https://typst.app/docs/guides/guide-for-latex-users/},
+		publisher = {Typst},
+		date = {2025-10-22}
+	}
+
+	@online{lilaq,
+		title = {Lilaq - Typst Universe},
+		url = {https://typst.app/universe/package/lilaq/},
+	}
+
+	@online{bibliography,
+		title = {Bibliography function},
+		url = {https://typst.app/docs/reference/model/bibliography/},	
+	}
+
+	@online{cite,
+		title = {Cite function},
+		url = {https://typst.app/docs/reference/model/cite/}
+	}
+
+	@online{documentation,
+		title = {Typst Documentation},
+		url = {https://typst.app/docs}
+	}
+
+	@online{universe,
+		title = {Typst Universe},
+		url = {https://typst.app/universe/}
+	}
+
+	@online{zap,
+		title = {Zap - Typst Universe},
+		url = {https://typst.app/universe/package/zap}	
+	}
+```.text
+
+
+#bibliography(bytes(bib), title: "References")
 
 #show: backmatter
 
 = Backmatter
 
 #figure(
-	align(left, [```cpp
+	align(left, [```c
 	void insertionSort(int a[], int n)
 	{
 	    int i, key, j;
