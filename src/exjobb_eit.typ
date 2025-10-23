@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let size_chapter_nbr = 1.5cm
 
 //Fonts
-#let font_main = "Adobe Garamond Pro"
+#let font_main = "EB Garamond"
 #let font_secondary = "Lato"
 #let font_chapter_nbr = "Libertinus Math"
 #let font_code = "Source Code Pro"
@@ -274,7 +274,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 		background: [
 			#set text(size: 12pt)
 			#place(center, dy: 22.5mm)[
-			"#short-title" - #date.display("[year]/[month padding:none]/[day padding:none]") - page #context(counter(page).get().at(0)) - #sym.hash#context(here().page())]
+			#emph(short-title) - #date.display("[year]/[month padding:none]/[day padding:none]") - page #context(counter(page).get().at(0)) - #sym.hash#context(here().page())]
 			#rect(stroke: 0.2mm, width: 169mm, height: 239mm)
 		]) if print == false
 	

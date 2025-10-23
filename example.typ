@@ -18,11 +18,6 @@
 			affiliation: "Lund University",
 			email: "Student.B@mail.com"
 		),
-		(
-			name: "Student C",
-			affiliation: none,
-			email: "Student.C@mail.com"
-		)
 	),
 	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?], [Another affiliation]),
 	front_images: (("../content/media/LTH_RGB_ENG.png"), ("../content/media/LTH_BLACK_ENG.png")),
@@ -39,11 +34,12 @@
 
 #set terms(tight: false, spacing: 5mm)
 #for (abb, des) in (
-	"EIT": "Department of Electrical and Information Technology",
+	"EIT": "Engineering Is (never) Trivial",
 	"LED": "Let's Emit Dazzle",
 	"MOSFET" : "Mostly Our Small Friend Enabling Transistor",
-	"EITF80": "Energy Isn’t Truly Free",
 	"AC" : "Actually Confusing",
+	"IC" : "Infinite Confusion",
+	"EMC" : "Engineers' Major Complaint",
 	"CODE" : "Computers Only Do Exactly (what you tell them)",
 	"PING" : "Packet Is Now Going"
 ).pairs().sorted() [/ #abb: #des]
@@ -57,6 +53,7 @@
 #outline(title: "Table of Contents")
 
 #outline(title: "List of Figures", target: figure.where(kind: image))
+#outline(title: "List of Figures", target: figure.where(kind: table))
 
 #show: mainmatter
 
@@ -67,9 +64,9 @@
 
 $ "div" bold(A) := lim_(Delta v arrow 0) frac(integral.surf_S bold(A) dot d bold(s), Delta v) $ <divergence>
 
-$ nabla times bold(B) = mu_0(bold(J) + epsilon_0 frac(partial bold(E), partial t)) $
+$ nabla times bold(B) = mu_0(bold(J) + epsilon_0 frac(partial bold(E), partial t)) $ <ampere-maxwell>
 
-One equation above is @divergence. This is @intro but below is @test and below that is @test2.
+The equations above are @divergence and @ampere-maxwell. This is @intro but below is @test and below that is @test2.
 
 == Test section <test>
 
@@ -166,8 +163,8 @@ In References you can find links. @latex-guide provides a guide for past LaTeX u
 For documentation on all functions, markup- and styling commands, see @documentation.
 
 
-//This can also be in a seperate .bib/.yml file! Then would simply write the relative path in #bibliography("PATH", etc)
-#let bib = ```bib
+//This can also be in a seperate .bib/.yml file! Then you would simply write the relative path in #bibliography("PATH", ..)
+#let works = ```bib
 	@online{latex-guide,
 		title = {Guide for LaTeX users},
 		url = {https://typst.app/docs/guides/guide-for-latex-users/},
@@ -207,7 +204,7 @@ For documentation on all functions, markup- and styling commands, see @documenta
 ```.text
 
 
-#bibliography(bytes(bib), title: "References")
+#bibliography(bytes(works), title: "References")
 
 #show: backmatter
 
