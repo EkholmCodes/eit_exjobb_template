@@ -53,7 +53,7 @@
 #outline(title: "Table of Contents")
 
 #outline(title: "List of Figures", target: figure.where(kind: image))
-#outline(title: "List of Figures", target: figure.where(kind: table))
+#outline(title: "List of Tables", target: figure.where(kind: table))
 
 #show: mainmatter
 
@@ -62,9 +62,9 @@
 
 #lorem(100)
 
-$ "div" bold(A) := lim_(Delta v arrow 0) frac(integral.surf_S bold(A) dot d bold(s), Delta v) $ <divergence>
+$ "div" bold(A) := lim_(Delta v arrow 0) (integral.surf_S bold(A) dot d bold(s)) / (Delta v) $ <divergence>
 
-$ nabla times bold(B) = mu_0(bold(J) + epsilon_0 frac(partial bold(E), partial t)) $ <ampere-maxwell>
+$ nabla times bold(B) = mu_0(bold(J) + epsilon_0 (partial bold(E)) / (partial t)) $ <ampere-maxwell>
 
 The equations above are @divergence and @ampere-maxwell. This is @intro but below is @test and below that is @test2.
 
@@ -79,26 +79,17 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 #figure(
 	lq.diagram(
 		lq.quiver(
-			lq.linspace(-4, 4, num: 15),
-			lq.linspace(-4, 4, num: 15),
+			lq.linspace(-5, 5, num: 20),
+			lq.linspace(-5, 5, num: 20),
 			(x, y) => {
-				let (a, b) = (2, 2)
-				x = x - a
-				y = y - b
-				let r = ((calc.pow(x, 2) + calc.pow(y, 2)))
-				let scale = 30/(r + 30)
-				if r == 0 {
-					return (a, b)
-				}
-				else{
-					return (scale*x/calc.sqrt(r), scale*y/calc.sqrt(r))
-				}
+				let a = x*x - y*y
+				return (calc.sin(y), calc.sin(x))
 			},
 			color: (x, y, u, v) => calc.norm(u, v),
 			map: lq.color.map.lipari,
 			scale: 0.5,
 			min: 0,
-			max: 1.5
+			max: 2,
 		)
 	),
 	caption: flexCaption([An example figure using the package Lilaq. @lilaq], [An example figure using the package Lilaq.])
@@ -111,6 +102,26 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 #figure(
 	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), [A]))),
 	caption: flexCaption([A figure with a longer caption. #lorem(50)], [A shorter caption, but links to the same figure!])
+)
+
+== Styling parameters
+
+#figure(
+	table(rows: 4, columns: 7, 
+		[], [Headings], [Sub-headings], [Sub-sub-headings], [Body], [Secondary text], [Tertiary], 
+		[Size], [#size_heading (Body), #size_chapter_nbr (Chapter number)], [#size_sub_heading], [#size_sub_sub_heading], [#size_main], [#size_secondary], [-],
+		[Color], rect(fill: grey_heading), rect(fill: grey_heading), rect(fill: grey_heading), rect(fill: grey_main), rect(fill: grey_secondary), rect(fill: grey_tertiary)
+		),
+	caption: "Document types, their size and color."
+)
+
+#figure(
+	table(rows: 3, columns: 6,
+		[], [Body], [Secondary text], [Chapter numbering], [Math], [Raw],
+		[Font], text(font: font_main, font_main), text(font: font_secondary, font_secondary), text(font: font_chapter_nbr, font_chapter_nbr), text(font: font_math, font_math), text(font: font_code, font_code),
+		[Usage], [Main text], [Headings, captions, header, footer], [Chapter number], [Equations, inline math], [Code blocks]
+		),
+	caption: "Fonts used."
 )
 
 = #flexCaption("New Chapter with a Long Title that Spanns over More Than One Line", "A New Chapter with a Short Title") <flexHeading>
@@ -134,26 +145,6 @@ Above @figureB is next to @figureC. By using the ```typst #flexCaption(long capt
 #figure(
 	table(rows: 2, columns: 3, [$t_0$], [$t_1$], [$t_2$], [$y_0$], [$y_1$], $y_2$),
 	caption: "A simple table."
-)
-
-== Styling parameters
-
-#figure(
-	table(rows: 4, columns: 7, 
-		[], [Headings], [Sub-headings], [Sub-sub-headings], [Body], [Secondary text], [Tertiary], 
-		[Size], [#size_heading (Body), #size_chapter_nbr (Chapter numbering)], [#size_sub_heading], [#size_sub_sub_heading], [#size_main], [#size_secondary], [-],
-		[Color], rect(fill: grey_heading), rect(fill: grey_heading), rect(fill: grey_heading), rect(fill: grey_main), rect(fill: grey_secondary), rect(fill: grey_tertiary)
-		),
-	caption: "Document types, their size and color."
-)
-
-#figure(
-	table(rows: 3, columns: 6,
-		[], [Body], [Secondary text], [Chapter numbering], [Math], [Raw],
-		[Font], text(font: font_main, font_main), text(font: font_secondary, font_secondary), text(font: font_chapter_nbr, font_chapter_nbr), text(font: font_math, font_math), text(font: font_code, font_code),
-		[Usage], [Main text], [Headings, captions, header], [Chapter and page number], [Equations, inline math], [Code blocks]
-		),
-	caption: "Fonts used."
 )
 
 = A word on Typst referencing
@@ -203,7 +194,6 @@ For documentation on all functions, markup- and styling commands, see @documenta
 	}
 ```.text
 
-
 #bibliography(bytes(works), title: "References")
 
 #show: backmatter
@@ -212,18 +202,21 @@ For documentation on all functions, markup- and styling commands, see @documenta
 
 #figure(
 	align(left, [```c
-	void insertionSort(int a[], int n)
+	/* Function to sort array using insertion sort */
+	void insertionSort(int arr[], int n)
 	{
-	    int i, key, j;
-	    for (i = 1; i < n; i++) {
-	        key = a[i];
-	        j = i - 1;
+	    for (int i = 1; i < n; ++i) {
+	        int key = arr[i];
+	        int j = i - 1;
 
-	        while (j >= 0 && a[j] > key) {
-	            a[j + 1] = a[j];
+	        /* Move elements of arr[0..i-1], that are
+	           greater than key, to one position ahead
+	           of their current position */
+	        while (j >= 0 && arr[j] > key) {
+	            arr[j + 1] = arr[j];
 	            j = j - 1;
 	        }
-	        a[j + 1] = key;
+	        arr[j + 1] = key;
 	    }
 	}
 	```]),

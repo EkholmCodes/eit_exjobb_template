@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 //Text sizes
 #let size_main = 10pt
-#let size_secondary = 9pt
+#let size_secondary = 8pt
 #let size_heading = 16pt
 #let size_sub_heading = 14pt
 #let size_sub_sub_heading = 12pt
@@ -30,11 +30,11 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //Colors
 #let lth_bronze = cmyk(9%, 57%, 100%, 41%)
 #let lth_blue = cmyk(100%, 85%, 5%, 22%)
-#let lth_grey = luma(30%) //rgb(77, 76, 68)
+#let lth_grey = cmyk(0%, 0%, 15%, 85%)
 
 #let grey_main = luma(5%)
 #let grey_secondary = luma(30%)
-#let grey_heading = luma(5%)
+#let grey_heading = lth_grey
 #let grey_tertiary = luma(20%)
 
 //---------------------------------------------|	STYLINGS	|---------------------------------------------
@@ -56,7 +56,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 //Footer
 #let footer() = {
-	set text(font: font_chapter_nbr, size: size_secondary)
+	set text(font: font_secondary, size: size_secondary)
 	context {
 		let has-heading = query(heading.where(level: 1)).any(it => it.location().page() == here().page())
 		if(has-heading){align(center)[#counter(page).display()]}
@@ -104,13 +104,13 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 			if calc.even(counter(page).get().at(0)) {
 				set align(left)
 				stack(dir: ltr, spacing: 1em, 
-					text(font: font_chapter_nbr, counter(page).display()), 
+					text(counter(page).display()), 
 					[|],
 					text(heading.body))
 			} else {
 				set align(right)
 				stack(dir: rtl, spacing: 1em, 
-					text(font: font_chapter_nbr, counter(page).display()), 
+					text(counter(page).display()), 
 					[|], 
 					text(heading.body))
 			}
@@ -197,23 +197,20 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 	context {
     	if it.element.has("kind") {
       		let loc = it.element.location()
-      		set text(weight: "regular")
-
-      	if counter(figure.where(kind: it.element.kind)).at(loc).first() == 1 {
-        	v(1em)
-      }
-      	block(above: 1em,
-	    	link(loc,
-	          box(strong(it.prefix().children.at(2)), width: 2.5em)
-	          + it.body()
-	          + box(it.fill, width: 1fr)
-	          + it.page()
-	        )
-	      )
-	    } else {
+	      	if counter(figure.where(kind: it.element.kind)).at(loc).first() == 1 {v(1em)}
+	      	block(above: 1em,
+		    	link(loc,
+		          box(strong(it.prefix().children.at(2)), width: 7.5mm)
+		          + it.body()
+		          + box([#align(center, block(width: 100% - 5mm, repeat(".", gap: 2mm)))], width: 1fr)
+		          + it.page()
+		        )
+		    )
+	    } 
+	    else {
 	      it
 	    }
-	  }
+	}
 }
 
 //---------------------------------------------|	DOCUMENT TEMPLATE	|---------------------------------------------
@@ -274,7 +271,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 		background: [
 			#set text(size: 12pt)
 			#place(center, dy: 22.5mm)[
-			#emph(short-title) - #date.display("[year]/[month padding:none]/[day padding:none]") - page #context(counter(page).get().at(0)) - #sym.hash#context(here().page())]
+			#emph(short-title) - #date.display("[year]/[month padding:none]/[day padding:none]") - page #context(counter(page).display()) - #sym.hash#context(here().page())]
 			#rect(stroke: 0.2mm, width: 169mm, height: 239mm)
 		]) if print == false
 	
@@ -293,6 +290,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 	show figure.caption: it => figure-caption(it)
 
 	//Tables
+	//show table: set text(font: font_secondary)
 	show table.cell.where(y: 0): strong
 	set table(
 	  stroke: (x, y) => if y == 0 {
