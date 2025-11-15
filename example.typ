@@ -2,9 +2,9 @@
 #import "@preview/lilaq:0.5.0" as lq
 
 #show: doc.with(
-	print: true,
-	title: "A Test of exjobb_eit.typ",
-	short-title: "A shorter title",
+	print: false,
+	title: "A Test of exjobb_eit.typ, a Typst Template made by Lucas Ekholm",
+	//short-title: "A shorter title",
 	examinor: "Some examinor",
 	supervisors: ("Academic Supervisor: Some Supervisor", "Company Supervisor: Another Supervisor"),
 	authors: (
@@ -19,8 +19,10 @@
 			email: "Student.B@mail.com"
 		),
 	),
-	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?], [Another affiliation]),
+	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?]),
 	front_images: (("../content/media/LTH_RGB_ENG.png"), ("../content/media/LTH_BLACK_ENG.png")),
+	keywords: ("Keyword 1", "Keyword 2"),
+	description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
 	date: datetime(year: 2022, month: 10, day: 22)
 )
 
@@ -28,7 +30,7 @@
 
 = Frontmatter
 
-#lorem(100)
+#lorem(75)
 
 #lorem(50)
 
@@ -45,7 +47,7 @@
 ).pairs().sorted() [/ #abb: #des]
 
 #align(center)[
-	#quote(block: true, quotes: true, attribution: [Markus Törmänen, spring 2025])[
+	#quote(block: true, quotes: true, attribution: [Markus Törmänen #footnote([Translated. Original quote in Swedish.]), spring 2025])[
 		To mature as an electrical engineer is to realize everything is about impedances.
 	]
 ]
@@ -99,8 +101,14 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 
 #lorem(100) #footnote[https://www.lth.se]
 
+#let l = counter("letters")
+#let letter() = block[
+	#l.step()
+	#context l.display("A")
+]
+
 #figure(
-	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), [A]))),
+	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), letter()))),
 	caption: flexCaption([A figure with a longer caption. #lorem(50)], [A shorter caption, but links to the same figure!])
 )
 
@@ -128,15 +136,15 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 
 #grid(columns: 2, 
 	[#figure(
-	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), [B]))),
+	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), letter()))),
 	caption: "A figure together with another figure."
 	) <figureB> ], [
 	#figure(
-	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), [C]))),
+	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), letter()))),
 	caption: flexCaption([This figure can have a long caption and still fit if done this way. #lorem(10)], [This figure can have a long caption and still fit.])
 ) <figureC>])
 
-Above @figureB is next to @figureC. By using the ```typst #flexCaption(long caption, short caption)``` function you can make flexible captions. You can also make longer/shorter headings! See @flexHeading.
+Above @figureB is next to @figureC. By using the #raw("#flexCaption(long caption, short caption)", lang: "typst") function you can make flexible captions. You can also make longer/shorter headings! See @flexHeading.
 
 == New section
 
@@ -224,6 +232,6 @@ For documentation on all functions, markup- and styling commands, see @documenta
 )
 
 #figure(
-	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), [D]))),
+	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), letter()))),
 	caption: "This is the last figure."
 	) <figureD>

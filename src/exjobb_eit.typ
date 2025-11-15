@@ -1,5 +1,5 @@
 /*
-A template of the degreeproject at EIT Lund University by Lucas Ekholm (E22). Made in Typst 0.13.1
+A template of the degreeproject at EIT Lund University by Lucas Ekholm (E22). Made in Typst 0.14.0
 
 Copyright © 2025 Lucas Ekholm
 
@@ -218,7 +218,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //Template function
 #let doc(
 	title: [Title],
-	short-title: none,
+	short-title: [Short title],
 	authors: (),
 	supervisors: (),
 	examinor: none,
@@ -236,8 +236,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 		title: title,
 		author: authors.map(author => author.name),
 		description: description,
-		keywords: keywords,
-		date: auto,
+		keywords: keywords
 	)
 	
 	set par(
@@ -275,7 +274,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 			#rect(stroke: 0.2mm, width: 169mm, height: 239mm)
 		]) if print == false
 	
-	//Text (brödtext)
+	//Text
 	set text(font: font_main, fill: grey_main, weight: "regular", size: size_main, hyphenate: true, lang: "en", ligatures: true, bottom-edge: "baseline", top-edge: "cap-height", number-type: "lining")
 	set strong(delta: 300)
 	set line(length: 100%, stroke: (thickness: 0.75pt, paint: grey_tertiary, cap: "round"))
@@ -307,10 +306,19 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 	show math.equation: set text(font: font_math)
 
 	//Raw text (Code)
-	set raw(block: true, align: start, tab-size: 4, theme: "Dawn.tmTheme")
-	show raw: set text(font: font_code)
-	show raw: set block(fill: luma(90%), inset: 10pt, radius: 4pt, width: 100%)
-
+	set raw(align: start, tab-size: 4, theme: "Dawn.tmTheme")
+	show raw: set text(font: font_code, tracking: -0.25pt)
+	show raw: set block(inset: 5mm, width: 100%)
+	show raw.where(block: true): it => {
+		show raw.line: line => {
+  			box(
+    			width: 100%,
+    			fill: if calc.rem(line.number, 2) == 0 { luma(96%) } else { white },
+    			[#text(fill: luma(50%), str(line.number)) #h(1cm) #line.body]
+  			)
+		}
+		it
+	}
 	//Bibliography
 	show bibliography: it => {
 		set bibliography(style: "ieee")
@@ -360,38 +368,42 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
   	//Main title page
 	page([
-		#set align(bottom + center)
+		#set align(horizon + center)
 		#set stack(dir: ttb)
 		#set block(above: 0pt, below: 0pt, stroke: 0pt + red)
-		
-		#stack(spacing: 2cm,
-			text(size: size_heading, weight: "regular", title),
-				stack(spacing: 1.2cm,
-					align(top, stack(dir: ltr, spacing: 1cm,
-						..authors.map(author => [
-							#stack(spacing: 3mm, 
-								author.name, 
-								if (author.affiliation == none){v(3mm)} else {author.affiliation},
-								if (author.email == none){v(3mm)} else {emph(author.email)}
-							)
-						])
-					)),
-					stack(dir: ttb, spacing: 5mm, ..affiliations),
-					stack(dir: ttb, spacing: 5mm, ..supervisors,
-						if (examinor == none){v(5mm)} else {[Examinor: #examinor]},
-					),
-					date.display("[month repr:long] [day padding:none], [year]")
-				),
-				if front_images.len() != 0{
-					grid(column-gutter: 1cm, columns: front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 3cm)))}
-				else {v(6cm)}
+		#set line(length: 90%)
+		#set grid(stroke: 0pt)
+		#set text(size: 11pt, hyphenate: false)
+		#grid(columns: (1fr), rows: (0.5fr, 1.25fr, 0.5fr, 1fr, 1fr, 1fr, 1.25fr, 1fr),
+			none,
+			{
+				set par(leading: 1em)
+				block(width: 90%, stack(spacing: 1fr, line(), text(size: 18pt, font: font_secondary, weight: "semibold", title), line()))
+			},
+			none,
+			block(align(top, stack(dir: ltr, spacing: 1cm,
+				..authors.map(author => [
+					#stack(spacing: 3mm, 
+						author.name, 
+						if (author.affiliation == none){v(3mm)} else {author.affiliation},
+						if (author.email == none){v(3mm)} else {emph(author.email)}
+					)
+				])
+			))),
+			stack(spacing: 5mm, ..affiliations),
+			stack(spacing: 5mm, ..supervisors, if (examinor == none){v(5mm)} else {[Examinor: #examinor]},
+			),
+			date.display("[month repr:long] [day padding:none], [year]"),
+			if front_images.len() != 0 
+			{
+				grid(column-gutter: 1cm, columns: front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 1fr)))} else {v(6cm)}
 		)
 	])
 
 	//Print page
 	page()[
 		#set par(leading: 0.5em)
-		#place(bottom + left, [#sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund])
+		#place(bottom + left, [This thesis is typeset using Typst #sys.version \ \ #sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund])
 	]
 	//Beginning of document
 	counter(page).update(1)
