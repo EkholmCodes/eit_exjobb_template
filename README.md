@@ -70,4 +70,14 @@ During writing, use
 #show: backmatter
 ```
 
-To tell the template where in the document you intend to write, in order to apply correct styling.
+To tell the template where in the document you intend to write, in order to apply correct styling. For example
+
+```typst
+#show: frontmatter
+#include("front.typ")
+
+#show: mainmatter
+#include("main.typ")
+
+#show: backmatter
+#include("appendix.typ")
