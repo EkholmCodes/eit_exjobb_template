@@ -55,3 +55,19 @@ Download the repository and place it in your project. Then include it using
 ```
 
 Look into and compile _example.typ_ to see some functions and how the template is structured.
+
+During writing, use 
+
+```typst 
+#show: frontmatter
+```
+
+```typst 
+#show: mainmatter
+```
+
+```typst 
+#show: backmatter
+```
+
+To tell the template where in the document you intend to write, in order to apply correct styling.
