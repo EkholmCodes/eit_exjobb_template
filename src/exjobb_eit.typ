@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 #let template_version = version(1) // Change when changes are made to the template, used to distinguish from original
 
-//---------------------------------------------|	TEXT AND COLOR DEFINITIONS	|---------------------------------------------
+//---------------------------------------------|  TEXT AND COLOR DEFINITIONS  |---------------------------------------------
 
 //Text sizes
 #let size_main = 10pt
@@ -27,7 +27,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //Fonts
 #let font_main = "EB Garamond"
 #let font_secondary = "Lato"
-#let font_chapter_nbr = font_main //ta bort?
+#let font_chapter_nbr = font_main
 #let font_code = "Source Code Pro"
 #let font_math = "Libertinus Math"
 
@@ -50,7 +50,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //Outline state, used for the flexCaption function
 #let in-outline = state("in-outline", false)
 
-//---------------------------------------------|	STYLINGS	|---------------------------------------------
+//---------------------------------------------|  STYLINGS  |---------------------------------------------
 
 //Logic for numbering
 #let chapternumbering(.. n) = {
@@ -82,11 +82,11 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 #let main_footer() = {
   set align(center)
-	set text(font: font_secondary, size: size_secondary)
-	context {
-		if(has-heading()){counter(page).display()}
-		else{none}
-	}
+  set text(font: font_secondary, size: size_secondary)
+  context {
+    if(has-heading()){counter(page).display()}
+    else{none}
+  }
 }
 
 //Header
@@ -236,19 +236,19 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 }
 
 #let backmatter(body) = {
-	set heading(numbering: "A.1")
-	set figure(numbering: appendix-figure-numbering)
-	show heading.where(level: 1): set heading(supplement: [Appendix])
-	counter(heading).update(0)
-	body
+  set heading(numbering: "A.1")
+  set figure(numbering: appendix-figure-numbering)
+  show heading.where(level: 1): set heading(supplement: [Appendix])
+  counter(heading).update(0)
+  body
 }
 
 //Function for resetting counters for new chapters. Called everytime a chapter is started with a show rule. If adding new kinds of figures, include a reset here
 #let resetCounters() = {
-	counter(figure.where(kind: table)).update(0)
-	counter(figure.where(kind: raw)).update(0)
-	counter(figure.where(kind: image)).update(0)
-	counter(math.equation).update(0)
+  counter(figure.where(kind: table)).update(0)
+  counter(figure.where(kind: raw)).update(0)
+  counter(figure.where(kind: image)).update(0)
+  counter(math.equation).update(0)
 }
 
 //Custom captions, used when wanting two different texts from the main body and the outline
@@ -257,26 +257,26 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //Creates a different style of outline for figures with field kind, otherwise shows the ordinary outline. The ordinary outline is customized with set and show rules
 #let outline-entry(it) = {
   let a = 0
-	context {
-    	if it.element.has("kind") {
-      		let loc = it.element.location()
-	      	if counter(figure.where(kind: it.element.kind)).at(loc).last() == 1 {block(above: 1em)}
-	      	block(above: 1em,
-		    	link(loc,
-		          box(strong(it.prefix().children.at(2)), width: 7.5mm)
-		          + it.body()
-		          + box([#align(center, block(width: 100% - 5mm, repeat(".", gap: 2mm)))], width: 1fr)
-		          + it.page()
-		        )
-		    )
-	    }
-	    else {
+  context {
+      if it.element.has("kind") {
+          let loc = it.element.location()
+          if counter(figure.where(kind: it.element.kind)).at(loc).last() == 1 {block(above: 1em)}
+          block(above: 1em,
+          link(loc,
+              box(strong(it.prefix().children.at(2)), width: 7.5mm)
+              + it.body()
+              + box([#align(center, block(width: 100% - 5mm, repeat(".", gap: 2mm)))], width: 1fr)
+              + it.page()
+            )
+        )
+      }
+      else {
        it
-	    }
-	}
+      }
+  }
 }
 
-//---------------------------------------------|	DOCUMENT TEMPLATE	|---------------------------------------------
+//---------------------------------------------|  DOCUMENT TEMPLATE |---------------------------------------------
 
 //Template function
 #let doc(
@@ -325,7 +325,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     state("heading").update(_ => heading-modified)
   }
   
-	//Set rules
+  //Set rules
   set document(
     title: thesis_title,
     author: authors.map(author => author.name),
@@ -333,7 +333,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     keywords: keywords,
     date: date
   )
-	
+  
   set par(
     justify: true, 
     first-line-indent: 1cm, 
@@ -362,13 +362,13 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   // Sets only if print == false, adds a G5 box to the pages and some information on top
   set page(
     binding: right,
-		background: [
-			#set text(size: 12pt)
-			#place(center, dy: 22.5mm)[
-			#emph(short_title) - #date.display("[year]/[month padding:none]/[day padding:none]") - page #context(counter(page).display()) - #sym.hash#context(here().page())]
-			#rect(stroke: 0.2mm, width: 169mm, height: 239mm)
-		]) if print == false
-	
+    background: [
+      #set text(size: 12pt)
+      #place(center, dy: 22.5mm)[
+      #emph(short_title) - #date.display("[year]/[month padding:none]/[day padding:none]") - page #context(counter(page).display()) - #sym.hash#context(here().page())]
+      #rect(stroke: 0.2mm, width: 169mm, height: 239mm)
+    ]) if print == false
+  
   //Text
   set text(
    font: font_main,
@@ -444,7 +444,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     in-outline.update(false)
   }
   show outline.entry: it => outline-entry(it)
-	
+  
   //Headings
   set heading(supplement: [Section])
   show heading: set text(font: font_main, fill: colour_heading, weight: "medium")
@@ -478,7 +478,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     #context{
     grid(
       columns: 1fr,
-      rows: (1fr, auto, 1fr, 1fr, 1fr, 1fr, 2fr),
+      rows: (1fr, auto, 1fr, 1fr, 1fr, 1fr, auto),
       row-gutter: 2em,
       title(),
       text(size: size_sub_heading, subtitle),
@@ -498,7 +498,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
         #if (degree != none) {[A thesis submitted for the degree of \ _ #degree _]} \ \
         #date.display("[month repr:long] [day padding:none], [year]")
       ],
-      if front_images.len() != 0 {grid(column-gutter: 1.5cm, columns: front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 100%)))}
+      if front_images.len() != 0 {grid(column-gutter: 1.5cm, columns: front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 4cm)))}
     )
   }])
   
