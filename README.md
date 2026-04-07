@@ -9,6 +9,7 @@ It provides a complete, ready-to-use structure for reports with modern styling a
 ---
 
 ## Parameters and fields
+
 The template has many fields which doesn't neccessarily need to be filled out, but makes the document more complete. Below are all fields with default value and comment on the specific type. If not mentioned, assume it is either of type content or string.
 
 ```typst
@@ -30,11 +31,27 @@ The template has many fields which doesn't neccessarily need to be filled out, b
 ```
 
 ### Styling
+
 #### Headings
+
 There exists two headings, "original" and "mod". Default is "original"
 
 #### Headers
+
 There exists three headers, "original", "mod" and "alternating". Default is "original"
 
 ### The print parameter
+
 When writing your thesis, you can set print to either true or false. Both cases prints the document on an A4. True will bind on the right side. False bind to the left and draw a box showing G5 dimensions.
+
+## How to use
+
+Download the repository and place it in your project. Then include it using
+
+```typst
+#import "PATH/exjobb_eit.typ": *
+
+#show: doc.with(...)
+```
+
+Look into and compile _example.typ_ to see some functions and how the template is structured.
