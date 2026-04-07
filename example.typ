@@ -1,16 +1,17 @@
-#import "src/exjobb_eit.typ": *
+#import "exjobb_eit.typ": *
 #import "@preview/lilaq:0.5.0" as lq
+#import "@preview/droplet:0.3.1": dropcap
 
 #show: doc.with(
 	print: false,
-	title: "A Test of exjobb_eit.typ, a Typst Template made by Lucas Ekholm",
-	//short-title: "A shorter title",
-	examinor: "Some examinor",
-	supervisors: ("Academic Supervisor: Some Supervisor", "Company Supervisor: Another Supervisor"),
+	thesis_title: [Test of exjobb_eit.typ],
+ subtitle: [A Typst Template made by Lucas Ekholm (E22), #lorem(10)],
+	short_title: [A shorter title],
+	examinor: [Some examinor],
+	supervisors: ([Academic Supervisor: Some Supervisor], [Company Supervisor: Another Supervisor]),
 	authors: (
 		(
 			name: "Student A",
-			affiliation: none,
 			email: "Student.A@mail.com"
 		),
 		(
@@ -19,10 +20,13 @@
 			email: "Student.B@mail.com"
 		),
 	),
+	degree: "Masters of Science in Engineering, Electrical Engineering",
 	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?]),
-	front_images: (("../content/media/LTH_RGB_ENG.png"), ("../content/media/LTH_BLACK_ENG.png")),
+	front_images: (("LTH_RGB_ENG.png"), ("LTH_BLACK_ENG.png")),
 	keywords: ("Keyword 1", "Keyword 2"),
 	description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
+ heading_style: "original",
+ header_style: "original",
 	date: datetime(year: 2022, month: 10, day: 22)
 )
 
@@ -52,15 +56,14 @@
 	]
 ]
 
-#outline(title: "Table of Contents")
-
+#outline(title: "Table of Contents") <outline>
 #outline(title: "List of Figures", target: figure.where(kind: image))
 #outline(title: "List of Tables", target: figure.where(kind: table))
 
 #show: mainmatter
 
 = Introduction <intro>
-#lorem(100)
+#dropcap(height: 3, gap: 0.5em)[#lorem(100)]
 
 #lorem(100)
 
@@ -68,13 +71,16 @@ $ "div" bold(A) := lim_(Delta v arrow 0) (integral.surf_S bold(A) dot d bold(s))
 
 $ nabla times bold(B) = mu_0(bold(J) + epsilon_0 (partial bold(E)) / (partial t)) $ <ampere-maxwell>
 
-The equations above are @divergence and @ampere-maxwell. This is @intro but below is @test and below that is @test2.
+The equations above are @divergence and @ampere-maxwell. This is @intro but below is @test and below that is @test2. This chapter can be found on #ref(<intro>, form: "page").
 
 == Test section <test>
 
 #lorem(50)
 
-=== A section which won't appear in the outline <test2>
+=== A section which won't appear in the outline on #ref(<outline>, form: "page"). <test2>
+#lorem(50)
+
+==== Test
 
 #lorem(50)
 
@@ -112,25 +118,17 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 	caption: flexCaption([A figure with a longer caption. #lorem(50)], [A shorter caption, but links to the same figure!])
 )
 
+/*
 == Styling parameters
 
 #figure(
 	table(rows: 4, columns: 7, 
 		[], [Headings], [Sub-headings], [Sub-sub-headings], [Body], [Secondary text], [Tertiary], 
-		[Size], [#size_heading (Body), #size_chapter_nbr (Chapter number)], [#size_sub_heading], [#size_sub_sub_heading], [#size_main], [#size_secondary], [-],
-		[Color], rect(fill: grey_heading), rect(fill: grey_heading), rect(fill: grey_heading), rect(fill: grey_main), rect(fill: grey_secondary), rect(fill: grey_tertiary)
+		[Size], [#size_heading (Body)], [#size_sub_heading], [#size_sub_sub_heading], [#size_main], [#size_secondary], [-],
+		[Color], rect(fill: colour_heading), rect(fill: colour_heading), rect(fill: colour_heading), rect(fill: colour_main), rect(fill: colour_secondary), rect(fill: colour_tertiary)
 		),
 	caption: "Document types, their size and color."
-)
-
-#figure(
-	table(rows: 3, columns: 6,
-		[], [Body], [Secondary text], [Chapter numbering], [Math], [Raw],
-		[Font], text(font: font_main, font_main), text(font: font_secondary, font_secondary), text(font: font_chapter_nbr, font_chapter_nbr), text(font: font_math, font_math), text(font: font_code, font_code),
-		[Usage], [Main text], [Headings, captions, header, footer], [Chapter number], [Equations, inline math], [Code blocks]
-		),
-	caption: "Fonts used."
-)
+)*/
 
 = #flexCaption("New Chapter with a Long Title that Spanns over More Than One Line", "A New Chapter with a Short Title") <flexHeading>
 
@@ -144,11 +142,11 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 	caption: flexCaption([This figure can have a long caption and still fit if done this way. #lorem(10)], [This figure can have a long caption and still fit.])
 ) <figureC>])
 
-Above @figureB is next to @figureC. By using the #raw("#flexCaption(long caption, short caption)", lang: "typst") function you can make flexible captions. You can also make longer/shorter headings! See @flexHeading.
+Above @figureB is next to @figureC. By using the #raw("#flexCaption(long caption, short caption)", lang: "typst", block: false) function you can make flexible captions. You can also make longer/shorter headings! See @flexHeading.
 
 == New section
 
-#lorem(100)
+#dropcap(height: 3, gap: 0.5em)[#lorem(100)]
 
 #figure(
 	table(rows: 2, columns: 3, [$t_0$], [$t_1$], [$t_2$], [$y_0$], [$y_1$], $y_2$),
@@ -157,7 +155,7 @@ Above @figureB is next to @figureC. By using the #raw("#flexCaption(long caption
 
 = A word on Typst referencing
 
-In References you can find links. @latex-guide provides a guide for past LaTeX users on the differences between the two typesetting languages, including what's native or not native, which macros map to which function etc. @cite and @bibliography links to information on how to cite and reference different sources. Typst includes support for both its native YAML-based format and BibTeX. @universe gives a link to the Typst Universe. On this page you can find packages which aid in your workflow, both in terms of styling and automation. For example @vector-field was made using lilaq, a package used to make graphs inside the Typst environment. Another good package is Zap which is used to make circuit diagrams much like TikZ. @zap
+#dropcap(height: 3, gap: 0.5em)[On #ref(<ref>, form: "page") you can find links. @latex-guide provides a guide for past LaTeX users on the differences between the two typesetting languages, including what's native or not native, which macros map to which function etc. @cite and @bibliography links to information on how to cite and reference different sources. Typst includes support for both its native YAML-based format and BibTeX. @universe gives a link to the Typst Universe. On this page you can find packages which aid in your workflow, both in terms of styling and automation. For example @vector-field was made using lilaq, a package used to make graphs inside the Typst environment. Another good package is Zap which is used to make circuit diagrams much like TikZ. @zap]
 
 For documentation on all functions, markup- and styling commands, see @documentation.
 
@@ -202,7 +200,7 @@ For documentation on all functions, markup- and styling commands, see @documenta
 	}
 ```.text
 
-#bibliography(bytes(works), title: "References")
+#bibliography(bytes(works), title: "References") <ref>
 
 #show: backmatter
 
