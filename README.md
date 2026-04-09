@@ -3,7 +3,7 @@
 ![Built with Typst](https://img.shields.io/badge/Built%20with-Typst-333?logo=typst)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A Typst template made from the LaTeX version of the degree project at EIT, LTH.
+An _unofficial_ Typst template made from the LaTeX version of the degree project at EIT, LTH.
 
 ## Configuration
 
