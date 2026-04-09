@@ -3,8 +3,6 @@ A template of the degreeproject at EIT (Electrical and Information Technology) L
 
 Made in Typst 0.14.2
 
-Copyright © 2025 Lucas Ekholm
-
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -19,7 +17,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //Text sizes
 #let size_main = 10pt
 #let size_secondary = size_main * 0.9
-#let size_heading = size_main * 1.6
+#let size_heading = size_main * 1.8
 #let size_sub_heading = size_main * 1.4
 #let size_sub_sub_heading = size_main * 1.2
 #let size_chapter_nbr = size_main * 4
@@ -31,16 +29,17 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let font_code = "Source Code Pro"
 #let font_math = "Libertinus Math"
 
-//Colours, not used in the template but are available
-#let lth_bronze = cmyk(9%, 57%, 100%, 41%)
-#let lth_blue = cmyk(100%, 85%, 5%, 22%)
-#let lth_grey = cmyk(0%, 0%, 15%, 85%)
+//Colours, taken from the official graphic profile of Lund University
+#let lth_bronze = rgb(156, 97, 20) //cmyk(9%, 57%, 100%, 41%)
+#let lth_blue = rgb(0, 0, 128) //cmyk(100%, 85%, 5%, 22%)
+#let lth_grey = rgb(191, 184, 175)//cmyk(0%, 0%, 15%, 85%)
+#let lth_light_brown = rgb(214, 210, 196) //cmyk(3%, 4%, 14%, 8%)
 
 //Text colours
 #let colour_main = black
 #let colour_secondary = lth_grey
 #let colour_heading = colour_main
-#let colour_tertiary = luma(20%)
+#let colour_tertiary = colour_main
 
 //States
 //Heading state, used for which style of heading to be used
@@ -279,8 +278,8 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //---------------------------------------------|  DOCUMENT TEMPLATE |---------------------------------------------
 
 //Template function
-#let doc(
-  thesis_title: [The Thesis title],
+#let thesis(
+  thesis_title: [Thesis title],
   subtitle: none,
   short_title: [A shorter title],
   authors: (),
@@ -288,12 +287,14 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   examinor: none,
   affiliations: (),
   degree: none,
+  course_code: "EITM01",
   front_images: (),
   description: none,
   keywords: (),
   print: false,
   header_style: "original",
   heading_style: "original",
+  front-cover-background: rect(width: 100%, height: 100%, fill: lth_light_brown),
   date: datetime.today(),
   body
   ) = {
@@ -468,6 +469,31 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   set quote(block: true)
   show quote: set block(inset: 2.5mm)
 
+  //Front cover page
+  if print == true {page(
+    paper: "sis-g5",
+    margin: 0.5cm,
+    background: rect(width: 100% - 0.65cm, height: 100% - 0.65cm, stroke: none)[#front-cover-background],
+    foreground: place(bottom + right, dy: 1.7cm, dx: 1.4cm,image("LU-sigill.webp", height: 35%)))[
+      #place(right + top, dy: 15%, 
+        block(width: 80%, height: auto, inset: (right: 0pt, rest: 0.5cm), fill: white)[
+          #set text(font: font_secondary, size: size_secondary, fill: lth_bronze, weight: "black")
+          #set align(center)
+          #set par(leading: 0.75em)
+          #text(font: font_main, weight: "semibold",size: size_heading, thesis_title)
+          #v(0.7cm, weak: true)
+          #align(right, line(length: 100%, stroke: (paint: lth_bronze)))
+          #set align(left)
+          #upper()[
+            #text(authors.map(author => author.name).intersperse(" & ").join()) \
+            Master's Thesis \
+            Department of Electrical and Information Technology \
+            Faculty of Engineering | LTH | Lund University
+          ]
+        ]
+      )
+  ]}
+
   //Main title page
   page([
     #set align(horizon + center)
@@ -478,7 +504,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     #context{
     grid(
       columns: 1fr,
-      rows: (1fr, auto, 1fr, 1fr, 1fr, 1fr, auto),
+      rows: (1fr, auto, 1fr, 1fr, 2fr, auto),
       row-gutter: 2em,
       title(),
       text(size: size_sub_heading, subtitle),
@@ -492,21 +518,21 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
         ])
       ))),
       stack(spacing: 1.5*par.leading, ..affiliations),
-      stack(spacing: 1.5*par.leading, ..supervisors, if (examinor == none){par.leading} else {[Examiner: #examinor]},
-      ),
       block[
         #if (degree != none) {[A thesis submitted for the degree of \ _ #degree _]} \ \
         #date.display("[month repr:long] [day padding:none], [year]")
       ],
-      if front_images.len() != 0 {grid(column-gutter: 1.5cm, columns: front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 4cm)))}
+      if front_images.len() != 0 {grid(column-gutter: 1.5cm, columns: front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 4cm)))},
     )
   }])
   
   //Print page
   page()[
     #set par(leading: 0.5em)
-    #place(bottom + left, [Typeset using Typst #sys.version \ \ #sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund])
-  ]
+    #context[
+      #stack(spacing: 1.5*par.leading, ..supervisors, if (examinor == none){par.leading} else {[Examiner: #examinor]}, [Course code: #course_code])
+      #place(bottom + left, [Typeset in #text(font: "Libertinus Serif", [Typst #sys.version]) \ \ #sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund])]
+    ]
   //Beginning of document
   counter(page).update(1)
   body

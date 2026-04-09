@@ -2,9 +2,9 @@
 #import "@preview/lilaq:0.5.0" as lq
 #import "@preview/droplet:0.3.1": dropcap
 
-#show: doc.with(
-	print: false,
-	thesis_title: [Test of exjobb_eit.typ],
+#show: thesis.with(
+	print: true,
+	thesis_title: [Test of exjobb_eit.typ #lorem(6)],
  subtitle: [A Typst Template made by Lucas Ekholm (E22), #lorem(10)],
 	short_title: [A shorter title],
 	examinor: [Some examinor],
@@ -22,7 +22,7 @@
 	),
 	degree: "Masters of Science in Engineering, Electrical Engineering",
 	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?]),
-	//front_images: (("LTH_RGB_ENG.png"), ("LTH_BLACK_ENG.png")),
+	front_images: (("LTH_RGB_ENG.png"), ("LTH_BLACK_ENG.png")),
 	keywords: ("Keyword 1", "Keyword 2"),
 	description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
  heading_style: "original",
