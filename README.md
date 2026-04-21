@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # EIT Degree Project Template in Typst
+=======
+# EIT Degree Project Template (Typst)
+>>>>>>> 5a7ed36 (Change readme)
 
 ![Built with Typst](https://img.shields.io/badge/Built%20with-Typst-333?logo=typst)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
