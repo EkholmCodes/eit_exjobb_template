@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 #let template_version = version(1) // Change when changes are made to the template, used to distinguish from original
 
-//---------------------------------------------|  TEXT AND COLOR DEFINITIONS  |---------------------------------------------
+//---------------------------------------------|  TEXT AND COLOR DEFINITIONS  |---------------------------------------------//
 
 //Text sizes
 #let size_main = 10pt
@@ -37,9 +37,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 //Text colours
 #let colour_main = black
-#let colour_secondary = lth_grey
-#let colour_heading = colour_main
-#let colour_tertiary = colour_main
+#let colour_secondary = luma(25%)
 
 //States
 //Heading state, used for which style of heading to be used
@@ -49,7 +47,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //Outline state, used for the flexCaption function
 #let in-outline = state("in-outline", false)
 
-//---------------------------------------------|  STYLINGS  |---------------------------------------------
+//---------------------------------------------|  STYLINGS  |---------------------------------------------//
 
 //Logic for numbering
 #let chapternumbering(.. n) = {
@@ -99,7 +97,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       let heading = query(selector(heading.where(level: 1)).before(here())).last()
       if calc.even(counter(page).get().first()) {
         box(width: 100%)[
-          #text(font: font_chapter_nbr, counter(page).display())
+          #text(counter(page).display())
           #h(1fr)
             #text(heading.body)
             ]
@@ -107,7 +105,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
         box(width: 100%)[
             #text(heading.body)
             #h(1fr)
-            #text(font: font_chapter_nbr, counter(page).display())
+            #text(counter(page).display())
           ]
       }
       v(2mm)
@@ -141,7 +139,6 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 }
 
 #let header-alternating() = {
-  set par(spacing: 0pt)
   set text(font: font_secondary, size: size_secondary)
   let print(alignment, direction, body) = {
     set align(alignment)
@@ -154,11 +151,11 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     if(has-heading()){none}
     else{
       let heading1 = query(selector(heading.where(level: 1)).before(here())).last()
-     let heading2 = query(selector(heading.where(level: 2)).before(here())).last()
+      let heading2 = query(selector(heading.where(level: 2)).before(here())).last(default: heading1)
       if calc.even(counter(page).get().first()) {
         print(left, ltr, heading1.body)
       } else {
-        print(right, rtl, document.title)
+        print(right, rtl, heading2.body)
       }
     }
   }
@@ -170,7 +167,6 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   set text(
     font: font_secondary,
     weight: "regular",
-    fill: colour_heading,
     hyphenate: false
   )
   set align(right)
@@ -197,7 +193,6 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   pagebreak(weak: true, to: "odd")
   set text(
     font: font_main,
-    fill: colour_heading,
     hyphenate: false
   )
   set align(center)
@@ -218,7 +213,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   ]
 }
 
-//Helper functions, to keep the main file clean. Use for example "#show: mainmatter" to begin the main part of the document.
+//Document state functions, to keep the main file clean. Use for example "#show: mainmatter" to begin the main part of the document.
 #let frontmatter(body) = {
   set page(numbering: "i", header: none, footer: front_footer())
   set heading(outlined: false, bookmarked: true)
@@ -275,7 +270,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   }
 }
 
-//---------------------------------------------|  DOCUMENT TEMPLATE |---------------------------------------------
+//---------------------------------------------|  DOCUMENT TEMPLATE |---------------------------------------------//
 
 //Template function
 #let thesis(
@@ -296,13 +291,14 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   heading_style: "original",
   front-cover-background: rect(width: 100%, height: 100%, fill: lth_light_brown),
   date: datetime.today(),
+  report-id: none,
   body
   ) = {
   
   //Panics, checks for correct types on variables.
   if header_style not in("original", "mod", "alternating"){panic("Variable header-style must be either original (default) or mod")}
   if heading_style not in ("original", "mod"){panic("Variable heading-style must be either original (defualt) or mod")}
-
+  
   if type(authors) != array {panic("Variable authors must be of type array.")}
   if type(supervisors) != array {panic("Variable supervisors must be of type array.")}
   if type(affiliations) != array {panic("Variable affiliations must be of type array.")}
@@ -310,6 +306,8 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   if type(keywords) != array {panic("Variable keywords must be of type array.")}
   if type(print) != bool {panic("Variable print must be of type boolean.")}
   if type(date) != datetime {panic("Variable date must be of type datetime.")}
+  if type(front-cover-background) != content {panic("Variable front-cover-background must be of type content")}
+  if report-id == none and print == true {panic("Thesis must have a report-id to be printed!")}
 
   //Selecting which header is used
   if header_style == "original" {state("header").update(header-original())}
@@ -318,7 +316,6 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
   //Selecting which heading is used
   if heading_style == "original" {
-    state("heading-numbering").update(_ => chapter-numbering)
     state("heading").update(_ => heading-original)
     
   }
@@ -348,27 +345,43 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     header-ascent: 0% + 7.5mm,
   )
 
-  //Gives an a4 page but with margins matching G5
-  set page(
-    paper: "a4",
-    margin: (
-      inside: 29.5mm + 5.5mm,
-      outside: 210mm - 125mm - 29.5mm - 5.5mm,
-      rest: (297mm - 200mm)/2,
-      ),
-    binding: left,
-    numbering: none
-  )
+  //Calculated necessary margins for the document depending if print == true or false
+  let (g5_width, g5_height) = (169mm, 239mm)
+  let (a4_width, a4_height) = (210mm, 297mm)
+  let (a4_offset_width, a4_offset_height) = ((a4_width - g5_width) / 2, (a4_height - g5_height) / 2)
+  
+  let (body_width, body_height) = (125mm, 200mm)
+  let inside = 29.5mm
+  let outside = g5_width - inside - body_width
+  let vertical =  (g5_height - body_height) / 2
 
   // Sets only if print == false, adds a G5 box to the pages and some information on top
   set page(
-    binding: right,
+    paper: "a4",
+    margin: (
+      inside: inside + a4_offset_width,
+      outside: outside + a4_offset_width,
+      rest: vertical + a4_offset_height,
+      ),
+    binding: left,
+    numbering: none,
     background: [
       #set text(size: 12pt)
       #place(center, dy: 22.5mm)[
-      #emph(short_title) - #date.display("[year]/[month padding:none]/[day padding:none]") - page #context(counter(page).display()) - #sym.hash#context(here().page())]
-      #rect(stroke: 0.2mm, width: 169mm, height: 239mm)
-    ]) if print == false
+      #emph(short_title) --- #date.display("[year]/[month padding:none]/[day padding:none]") --- page #context(counter(page).display()) --- #sym.hash#context(here().page())]
+      #align(center + horizon, rect(stroke: 0.2mm, width: g5_width, height: g5_height))
+    ]
+  ) if print == false
+
+  set page(
+    paper: "sis-g5",
+    margin: (
+      inside: inside,
+      outside: outside,
+      rest: vertical
+    ),
+    binding: left
+  ) if print == true
   
   //Text
   set text(
@@ -386,7 +399,10 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   
   // Line
   set line(length: 100%,
-    stroke: (thickness: 0.75pt, paint: colour_tertiary, cap: "round"))
+    stroke: (
+      thickness: 0.75pt,
+      cap: "round")
+    )
 
   //Footnotes
   show footnote.entry: set text(fill: colour_secondary)
@@ -403,16 +419,11 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   show figure.caption: it => figure-caption(it)
 
   //Tables
-  //show table: set text(font: font_secondary)
   show table.cell.where(y: 0): strong
   set table(
-      stroke: (x, y) => if y == 0 {
-        (bottom: 0.75pt + lth_grey)
-      },
-      align: (x, y) => (
-      if x > 0 { center }
-      else { left }
-      )
+    inset: (x: 8pt, y: 4pt),
+    stroke: (x, y) => if y <= 1 { (top: 0.5pt) },
+    fill: (x, y) => if y > 0 and calc.rem(y, 2) == 0  {rgb("#efefef")}
   )
 
   //Equations
@@ -448,7 +459,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   
   //Headings
   set heading(supplement: [Section])
-  show heading: set text(font: font_main, fill: colour_heading, weight: "medium")
+  show heading: set text(font: font_main, weight: "medium")
   show heading: set par(leading: 1em)
   show heading.where(level: 1): set heading(supplement: [Chapter])
   show heading.where(level: 2): set block(above: 2em, below: 1em)
@@ -469,20 +480,20 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   set quote(block: true)
   show quote: set block(inset: 2.5mm)
 
-  //Front cover page
+  //Front cover page, if print is true
   if print == true {page(
     paper: "sis-g5",
     margin: 0.5cm,
     background: rect(width: 100% - 0.65cm, height: 100% - 0.65cm, stroke: none)[#front-cover-background],
-    foreground: place(bottom + right, dy: 1.7cm, dx: 1.4cm,image("LU-sigill.webp", height: 35%)))[
+    foreground: place(bottom + right, dy: 17mm, dx: 13mm,image("LU-sigill.webp", height: 35%)))[
       #place(right + top, dy: 15%, 
         block(width: 80%, height: auto, inset: (right: 0pt, rest: 0.5cm), fill: white)[
           #set text(font: font_secondary, size: size_secondary, fill: lth_bronze, weight: "black")
           #set align(center)
-          #set par(leading: 0.75em)
-          #text(font: font_main, weight: "semibold",size: size_heading, thesis_title)
+          //#set par(leading: 0.75em)
+          #text(font: font_main, weight: "semibold", size: size_heading, thesis_title)
           #v(0.7cm, weak: true)
-          #align(right, line(length: 100%, stroke: (paint: lth_bronze)))
+          #align(right, line(stroke: (paint: lth_bronze)))
           #set align(left)
           #upper()[
             #text(authors.map(author => author.name).intersperse(" & ").join()) \
@@ -504,10 +515,10 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     #context{
     grid(
       columns: 1fr,
-      rows: (1fr, auto, 1fr, 1fr, 2fr, auto),
-      row-gutter: 2em,
-      title(),
-      text(size: size_sub_heading, subtitle),
+      rows: auto,
+      row-gutter: 1fr,
+        title(),
+        text(size: size_sub_heading, subtitle),
       block(align(top, stack(dir: ltr, spacing: 2.5cm,
         ..authors.map(author => [
           #stack(spacing: par.leading, 
@@ -517,23 +528,37 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
           )
         ])
       ))),
+      stack(spacing: 1.5*par.leading, ..supervisors, if (examinor == none){par.leading} else {[Examiner: #examinor]}, if course_code == none [Course code: #course_code] else []),
       stack(spacing: 1.5*par.leading, ..affiliations),
-      block[
+      [
         #if (degree != none) {[A thesis submitted for the degree of \ _ #degree _]} \ \
         #date.display("[month repr:long] [day padding:none], [year]")
       ],
-      if front_images.len() != 0 {grid(column-gutter: 1.5cm, columns: front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 4cm)))},
+      if front_images.len() != 0 {grid(column-gutter: 0.2fr, columns: (1fr,) * front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 4cm)))},
     )
   }])
   
   //Print page
   page()[
-    #set par(leading: 0.5em)
-    #context[
-      #stack(spacing: 1.5*par.leading, ..supervisors, if (examinor == none){par.leading} else {[Examiner: #examinor]}, [Course code: #course_code])
-      #place(bottom + left, [Typeset in #text(font: "Libertinus Serif", [Typst #sys.version]) \ \ #sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund])]
-    ]
+    #set par(leading: 0.4em)
+      #place(bottom + left, [Typeset in Typst #sys.version \ \ #sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund])
+  ]
+  
   //Beginning of document
   counter(page).update(1)
   body
-  }
+
+  //Backcover, if print is true
+  if print == true {
+    page(paper: "sis-g5", margin: (x: 1cm, rest: 2cm))[
+      #set text(fill: lth_bronze, font: font_secondary, size: size_secondary, weight: "semibold")
+  
+      #place(top + right, rotate(90deg, reflow: true, text(weight: "regular", size: 6pt, [Printed by Tryckeriet i E-huset, Lund #date.display("[year]")])))
+      #align(bottom + center)[
+      #image("LU_RGB_ENG.png", height: 4cm) \  
+      Series of Master's theses \
+      Department of Electrical and Information Technology \
+      LU/LTH-EIT #date.display("[year]")-#report-id \
+      #link("http://www.eit.lth.se")]
+    ]}
+}

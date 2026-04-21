@@ -1,11 +1,10 @@
-#import "src/exjobb_eit.typ": *
+#import "src/exjobb_eit.typ": thesis, frontmatter, mainmatter, flexCaption, backmatter
 #import "@preview/lilaq:0.5.0" as lq
-#import "@preview/droplet:0.3.1": dropcap
 
 #show: thesis.with(
-	print: true,
-	thesis_title: [Test of exjobb_eit.typ #lorem(6)],
- subtitle: [A Typst Template made by Lucas Ekholm (E22), #lorem(10)],
+	print: false,
+	thesis_title: [Test of exjobb_eit.typ],
+  subtitle: [An unofficial Typst template for degree project at Electrical and Information Technology at LTH, made by Lucas Ekholm (E22)],
 	short_title: [A shorter title],
 	examinor: [Some examinor],
 	supervisors: ([Academic Supervisor: Some Supervisor], [Company Supervisor: Another Supervisor]),
@@ -22,12 +21,13 @@
 	),
 	degree: "Masters of Science in Engineering, Electrical Engineering",
 	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?]),
-	front_images: (("LTH_RGB_ENG.png"), ("LTH_BLACK_ENG.png")),
+	front_images: ("LTH_RGB_ENG.png", "LTH_BLACK_ENG.png"),
 	keywords: ("Keyword 1", "Keyword 2"),
 	description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
  heading_style: "original",
  header_style: "original",
-	date: datetime(year: 2022, month: 10, day: 22)
+	date: datetime(year: 2022, month: 10, day: 22),
+ report-id: highlight[Here goes the report id!]
 )
 
 #show: frontmatter
@@ -63,7 +63,7 @@
 #show: mainmatter
 
 = Introduction <intro>
-#dropcap(height: 3, gap: 0.5em)[#lorem(100)]
+#lorem(100)
 
 #lorem(100)
 
@@ -80,7 +80,7 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 === A section which won't appear in the outline on #ref(<outline>, form: "page"). <test2>
 #lorem(50)
 
-==== Test
+==== These sections keep going!
 
 #lorem(50)
 
@@ -142,20 +142,31 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 	caption: flexCaption([This figure can have a long caption and still fit if done this way. #lorem(10)], [This figure can have a long caption and still fit.])
 ) <figureC>])
 
-Above @figureB is next to @figureC. By using the #raw("#flexCaption(long caption, short caption)", lang: "typst", block: false) function you can make flexible captions. You can also make longer/shorter headings! See @flexHeading.
+Above @figureB is next to @figureC. By using the #raw("#flexCaption(long caption, short caption)", lang: "typst", block: false) function you can make flexible captions. You can also make longer/shorter headings! See @flexHeading on #ref(<outline>, form: "page").
 
 == New section
 
-#dropcap(height: 3, gap: 0.5em)[#lorem(100)]
+$ F_(n) = F_(n-1) + F_(n-2), #h(1cm) cases(F_0 = 0, F_1 = 1) $
 
-#figure(
-	table(rows: 2, columns: 3, [$t_0$], [$t_1$], [$t_2$], [$y_0$], [$y_1$], $y_2$),
-	caption: "A simple table."
+#lorem(20)
+
+#let count = 15
+#let nums = range(1, count + 1)
+#let fib(n) = (
+  if n <= 2 { 1 }
+  else { fib(n - 1) + fib(n - 2) }
 )
+
+#figure(table(
+  columns: count,
+  ..nums.map(n => $F_#n$),
+  ..nums.map(n => str(fib(n))),
+),
+caption: [The Fibonacci sequence up to n = #count.])
 
 = A word on Typst referencing
 
-#dropcap(height: 3, gap: 0.5em)[On #ref(<ref>, form: "page") you can find links. @latex-guide provides a guide for past LaTeX users on the differences between the two typesetting languages, including what's native or not native, which macros map to which function etc. @cite and @bibliography links to information on how to cite and reference different sources. Typst includes support for both its native YAML-based format and BibTeX. @universe gives a link to the Typst Universe. On this page you can find packages which aid in your workflow, both in terms of styling and automation. For example @vector-field was made using lilaq, a package used to make graphs inside the Typst environment. Another good package is Zap which is used to make circuit diagrams much like TikZ. @zap]
+On #ref(<ref>, form: "page") you can find links. @latex-guide provides a guide for past LaTeX users on the differences between the two typesetting languages, including what's native or not native, which macros map to which function etc. @cite and @bibliography links to information on how to cite and reference different sources. Typst includes support for both its native YAML-based format and BibTeX. @universe gives a link to the Typst Universe. On this page you can find packages which aid in your workflow, both in terms of styling and automation. For example @vector-field was made using lilaq, a package used to make graphs inside the Typst environment. Another good package is Zap which is used to make circuit diagrams much like TikZ. @zap
 
 For documentation on all functions, markup- and styling commands, see @documentation.
 
