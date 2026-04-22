@@ -2,10 +2,10 @@
 #import "@preview/lilaq:0.5.0" as lq
 
 #show: thesis.with(
-	print: false,
-	thesis_title: [Test of exjobb_eit.typ],
+	print: true,
+	thesis-title: [Test of exjobb_eit.typ],
   subtitle: [An unofficial Typst template for degree project at Electrical and Information Technology at LTH, made by Lucas Ekholm (E22)],
-	short_title: [A shorter title],
+	short-title: [A shorter title],
 	examiner: [Some examiner],
 	supervisors: ([Academic Supervisor: Some Supervisor], [Company Supervisor: Another Supervisor]),
 	authors: (
@@ -21,11 +21,11 @@
 	),
 	degree: "Masters of Science in Engineering, Electrical Engineering",
 	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?]),
-	front_images: ("../example/LTH_RGB_ENG.png", "../example/LTH_BLACK_ENG.png"),
+	front-images: ("../example/LTH_RGB_ENG.png", "../example/LTH_BLACK_ENG.png"),
 	keywords: ("Keyword 1", "Keyword 2"),
 	description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
- heading_style: "original",
- header_style: "original",
+ heading-style: "original",
+ header-style: "original",
 	date: datetime(year: 2022, month: 10, day: 22),
  report-id: highlight[Here goes the report id!]
 )

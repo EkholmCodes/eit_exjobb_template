@@ -274,7 +274,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 //Template function
 #let thesis(
-  thesis_title: [Thesis title],
+  thesis-title: [Thesis title],
   subtitle: none,
   short-title: [A shorter title],
   authors: (),
@@ -283,7 +283,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   affiliations: (),
   degree: none,
   course-code: "EITM01",
-  front_images: (),
+  front-images: (),
   description: none,
   keywords: (),
   print: false,
@@ -302,7 +302,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   if type(authors) != array {panic("Variable authors must be of type array.")}
   if type(supervisors) != array {panic("Variable supervisors must be of type array.")}
   if type(affiliations) != array {panic("Variable affiliations must be of type array.")}
-  if type(front_images) != array {panic("Variable front_images must be of type array.")}
+  if type(front-images) != array {panic("Variable front-images must be of type array.")}
   if type(keywords) != array {panic("Variable keywords must be of type array.")}
   if type(print) != bool {panic("Variable print must be of type boolean.")}
   if type(date) != datetime {panic("Variable date must be of type datetime.")}
@@ -325,7 +325,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   
   //Set rules
   set document(
-    title: thesis_title,
+    title: thesis-title,
     author: authors.map(author => author.name),
     description: description,
     keywords: keywords,
@@ -491,7 +491,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
           #set text(font: font-secondary, size: size-secondary, fill: lth-bronze, weight: "black")
           #set align(center)
           //#set par(leading: 0.75em)
-          #text(font: font-main, weight: "semibold", size: size-heading, thesis_title)
+          #text(font: font-main, weight: "semibold", size: size-heading, thesis-title)
           #v(0.7cm, weak: true)
           #align(right, line(stroke: (paint: lth-bronze)))
           #set align(left)
@@ -534,7 +534,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
         #if (degree != none) {[A thesis submitted for the degree of \ _ #degree _]} \ \
         #date.display("[month repr:long] [day padding:none], [year]")
       ],
-      if front_images.len() != 0 {grid(column-gutter: 0.2fr, columns: (1fr,) * front_images.len(), ..front_images.map(img => image(img, fit: "contain", height: 4cm)))},
+      if front-images.len() != 0 {grid(column-gutter: 0.2fr, columns: (1fr,) * front-images.len(), ..front-images.map(img => image(img, fit: "contain", height: 4cm)))},
     )
   }])
   
