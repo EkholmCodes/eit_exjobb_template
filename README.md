@@ -13,7 +13,7 @@ An _unofficial_ Typst template made from the LaTeX version of the degree project
 | :--- | :--- | :--- | :--- |
 | `thesis_title` | `content/str` | `[The Thesis title]` | The main title of your project. |
 | `subtitle` | `content/str` | `none` | An optional subtitle. |
-| `short_title` | `content/str` | `[A shorter title]` | Used in headers/footers. |
+| `short_title` | `content/str` | `[A shorter title]` | Used in headers |
 | `authors` | `array` | `()` | List of dictionaries: `(name: "", affiliation: "", mail: "")`. |
 | `supervisors` | `array` | `()` | List of strings or content. |
 | `examinor` | `content/str` | `none` | Name of your examiner. |
