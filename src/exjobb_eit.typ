@@ -279,7 +279,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   short-title: [A shorter title],
   authors: (),
   supervisors: (),
-  examinor: none,
+  examiner: none,
   affiliations: (),
   degree: none,
   course-code: "EITM01",
@@ -528,7 +528,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
           )
         ])
       ))),
-      stack(spacing: 1.5*par.leading, ..supervisors, if (examinor == none){par.leading} else {[Examiner: #examinor]}, if course-code == none [Course code: #course-code] else []),
+      stack(spacing: 1.5*par.leading, ..supervisors, if (examiner == none){par.leading} else {[Examiner: #examiner]}, if course-code == none [Course code: #course-code] else []),
       stack(spacing: 1.5*par.leading, ..affiliations),
       [
         #if (degree != none) {[A thesis submitted for the degree of \ _ #degree _]} \ \

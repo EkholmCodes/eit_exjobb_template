@@ -6,7 +6,7 @@
 	thesis_title: [Test of exjobb_eit.typ],
   subtitle: [An unofficial Typst template for degree project at Electrical and Information Technology at LTH, made by Lucas Ekholm (E22)],
 	short_title: [A shorter title],
-	examinor: [Some examinor],
+	examiner: [Some examiner],
 	supervisors: ([Academic Supervisor: Some Supervisor], [Company Supervisor: Another Supervisor]),
 	authors: (
 		(
