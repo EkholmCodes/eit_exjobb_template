@@ -15,29 +15,29 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //---------------------------------------------|  TEXT AND COLOR DEFINITIONS  |---------------------------------------------//
 
 //Text sizes
-#let size_main = 10pt
-#let size_secondary = size_main * 0.9
-#let size_heading = size_main * 1.8
-#let size_sub_heading = size_main * 1.4
-#let size_sub_sub_heading = size_main * 1.2
-#let size_chapter_nbr = size_main * 4
+#let size-main = 10pt
+#let size-secondary = size-main * 0.9
+#let size-heading = size-main * 1.8
+#let size-sub-heading = size-main * 1.4
+#let size-sub-sub-heading = size-main * 1.2
+#let size-chapter-nbr = size-main * 4
 
 //Fonts
-#let font_main = "EB Garamond"
-#let font_secondary = "Lato"
-#let font_chapter_nbr = font_main
-#let font_code = "Source Code Pro"
-#let font_math = "Libertinus Math"
+#let font-main = "EB Garamond"
+#let font-secondary = "Lato"
+#let font-chapter-nbr = font-main
+#let font-code = "Source Code Pro"
+#let font-math = "Libertinus Math"
 
 //Colours, taken from the official graphic profile of Lund University
-#let lth_bronze = rgb(156, 97, 20) //cmyk(9%, 57%, 100%, 41%)
-#let lth_blue = rgb(0, 0, 128) //cmyk(100%, 85%, 5%, 22%)
-#let lth_grey = rgb(191, 184, 175)//cmyk(0%, 0%, 15%, 85%)
-#let lth_light_brown = rgb(214, 210, 196) //cmyk(3%, 4%, 14%, 8%)
+#let lth-bronze = rgb(156, 97, 20) //cmyk(9%, 57%, 100%, 41%)
+#let lth-blue = rgb(0, 0, 128) //cmyk(100%, 85%, 5%, 22%)
+#let lth-grey = rgb(191, 184, 175)//cmyk(0%, 0%, 15%, 85%)
+#let lth-light_brown = rgb(214, 210, 196) //cmyk(3%, 4%, 14%, 8%)
 
 //Text colours
-#let colour_main = black
-#let colour_secondary = luma(25%)
+#let colour-main = black
+#let colour-secondary = luma(25%)
 
 //States
 //Heading state, used for which style of heading to be used
@@ -50,7 +50,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //---------------------------------------------|  STYLINGS  |---------------------------------------------//
 
 //Logic for numbering
-#let chapternumbering(.. n) = {
+#let chapter-numbering(.. n) = {
   let numbers = n.pos()
   
   if numbers.len() == 1 {
@@ -71,15 +71,15 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 }
 
 //Footer
-#let front_footer() = {
+#let front-footer() = {
   set align(center)
-  set text(font: font_secondary, size: size_secondary)
+  set text(font: font-secondary, size: size-secondary)
   context counter(page).display()
 }
 
-#let main_footer() = {
+#let main-footer() = {
   set align(center)
-  set text(font: font_secondary, size: size_secondary)
+  set text(font: font-secondary, size: size-secondary)
   context {
     if(has-heading()){counter(page).display()}
     else{none}
@@ -90,7 +90,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //From the original LaTeX template
 #let header-original() = {
   set par(spacing: 0pt)
-  set text(font: font_secondary, size: size_secondary)
+  set text(font: font-secondary, size: size-secondary)
   context {
     if(has-heading()){none}
     else{
@@ -117,7 +117,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //A simplified header style, made for this template
 #let header-simple() = {
   set par(spacing: 0pt)
-  set text(font: font_secondary, size: size_secondary)
+  set text(font: font-secondary, size: size-secondary)
   let print(alignment, direction, heading) = {
     set align(alignment)
     stack(dir: direction, spacing: 1em, 
@@ -139,7 +139,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 }
 
 #let header-alternating() = {
-  set text(font: font_secondary, size: size_secondary)
+  set text(font: font-secondary, size: size-secondary)
   let print(alignment, direction, body) = {
     set align(alignment)
     stack(dir: direction, spacing: 1em, 
@@ -165,7 +165,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let heading-original(it) = {
   pagebreak(weak: true, to: "odd")
   set text(
-    font: font_secondary,
+    font: font-secondary,
     weight: "regular",
     hyphenate: false
   )
@@ -173,16 +173,16 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   set block(below: 15mm)
   let has-numbering = it.numbering != none
   if true {
-    v(size_chapter_nbr)
+    v(size-chapter-nbr)
     block()[
       #stack(dir: ttb, spacing: 7.5mm,
         [#box(width: 1fr, line()) #box([
             #if has-numbering {
-              text(size: size_main, it.supplement)
+              text(size: size-main, it.supplement)
             }
-        #text(size: size_chapter_nbr, font: font_chapter_nbr, weight: "regular", 
+        #text(size: size-chapter-nbr, font: font-chapter-nbr, weight: "regular", 
           if it.numbering != none {counter(heading).display(it.numbering)})])],
-        text(size: size_heading, it.body),
+        text(size: size-heading, it.body),
         line()
       )
     ]
@@ -192,38 +192,38 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let heading-modified(it) = {
   pagebreak(weak: true, to: "odd")
   set text(
-    font: font_main,
+    font: font-main,
     hyphenate: false
   )
   set align(center)
   set par(leading: 1em)
   set block(width: 100%, height: 3cm, below: 3cm)
   block(align(bottom)[
-    #text(size: size_sub_sub_heading)[#if it.numbering != none [#it.supplement #counter(heading).display(it.numbering)]] \ \
-    #text(size: size_heading, it.body)
+    #text(size: size-sub-sub-heading)[#if it.numbering != none [#it.supplement #counter(heading).display(it.numbering)]] \ \
+    #text(size: size-heading, it.body)
   ]) 
 }
 
 //Figure captions
 #let figure-caption(it) = {
-  set text(font: font_secondary, size: size_secondary)
+  set text(font: font-secondary, size: size-secondary)
   block(width: 75%)[
     #strong([#it.supplement #context{it.counter.display(it.numbering)}#it.separator])
-    #text(fill: colour_secondary)[#it.body]
+    #text(fill: colour-secondary)[#it.body]
   ]
 }
 
 //Document state functions, to keep the main file clean. Use for example "#show: mainmatter" to begin the main part of the document.
 #let frontmatter(body) = {
-  set page(numbering: "i", header: none, footer: front_footer())
+  set page(numbering: "i", header: none, footer: front-footer())
   set heading(outlined: false, bookmarked: true)
   body
 }
 
 #let mainmatter(body) = {
   pagebreak(weak: true, to: "odd")
-  set heading(numbering: chapternumbering, outlined: true)
-  set page(header: context state("header").get(), numbering: "1", footer: main_footer())
+  set heading(numbering: chapter-numbering, outlined: true)
+  set page(header: context state("header").get(), numbering: "1", footer: main-footer())
   counter(page).update(1)
   counter(heading).update(0)
   body
@@ -276,28 +276,28 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let thesis(
   thesis_title: [Thesis title],
   subtitle: none,
-  short_title: [A shorter title],
+  short-title: [A shorter title],
   authors: (),
   supervisors: (),
   examinor: none,
   affiliations: (),
   degree: none,
-  course_code: "EITM01",
+  course-code: "EITM01",
   front_images: (),
   description: none,
   keywords: (),
   print: false,
-  header_style: "original",
-  heading_style: "original",
-  front-cover-background: rect(width: 100%, height: 100%, fill: lth_light_brown),
+  header-style: "original",
+  heading-style: "original",
+  front-cover-background: rect(width: 100%, height: 100%, fill: lth-light_brown),
   date: datetime.today(),
   report-id: none,
   body
   ) = {
   
   //Panics, checks for correct types on variables.
-  if header_style not in("original", "mod", "alternating"){panic("Variable header-style must be either original (default) or mod")}
-  if heading_style not in ("original", "mod"){panic("Variable heading-style must be either original (defualt) or mod")}
+  if header-style not in("original", "mod", "alternating"){panic("Variable header-style must be either original (default) or mod")}
+  if heading-style not in ("original", "mod"){panic("Variable heading-style must be either original (defualt) or mod")}
   
   if type(authors) != array {panic("Variable authors must be of type array.")}
   if type(supervisors) != array {panic("Variable supervisors must be of type array.")}
@@ -310,16 +310,16 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   if report-id == none and print == true {panic("Thesis must have a report-id to be printed!")}
 
   //Selecting which header is used
-  if header_style == "original" {state("header").update(header-original())}
-  else if header_style == "mod" {state("header").update(header-simple())}
-  else if header_style == "alternating" {state("header").update(header-alternating())}
+  if header-style == "original" {state("header").update(header-original())}
+  else if header-style == "mod" {state("header").update(header-simple())}
+  else if header-style == "alternating" {state("header").update(header-alternating())}
 
   //Selecting which heading is used
-  if heading_style == "original" {
+  if heading-style == "original" {
     state("heading").update(_ => heading-original)
     
   }
-  else if heading_style == "mod" {
+  else if heading-style == "mod" {
     state("heading").update(_ => heading-modified)
   }
   
@@ -368,7 +368,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     background: [
       #set text(size: 12pt)
       #place(center, dy: 22.5mm)[
-      #emph(short_title) --- #date.display("[year]/[month padding:none]/[day padding:none]") --- page #context(counter(page).display()) --- #sym.hash#context(here().page())]
+      #emph(short-title) --- #date.display("[year]/[month padding:none]/[day padding:none]") --- page #context(counter(page).display()) --- #sym.hash#context(here().page())]
       #align(center + horizon, rect(stroke: 0.2mm, width: g5_width, height: g5_height))
     ]
   ) if print == false
@@ -385,10 +385,10 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   
   //Text
   set text(
-   font: font_main,
-   fill: colour_main,
+   font: font-main,
+   fill: colour-main,
    weight: "regular",
-   size: size_main,
+   size: size-main,
    hyphenate: true,
    lang: "en",
    ligatures: true,
@@ -405,9 +405,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     )
 
   //Footnotes
-  show footnote.entry: set text(fill: colour_secondary)
+  show footnote.entry: set text(fill: colour-secondary)
   set footnote.entry(
-    separator: line(length: 30%, stroke: 0.5pt + colour_secondary),
+    separator: line(length: 30%, stroke: 0.5pt + colour-secondary),
     gap: 0.8em
   )
 
@@ -428,7 +428,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
   //Equations
   set math.equation(supplement: none, numbering: equation-numbering)
-  show math.equation: set text(font: font_math)
+  show math.equation: set text(font: font-math)
   
   //Raw text (Code)
   set raw(block: true, align: start, tab-size: 4, theme: "theme.tmTheme")
@@ -459,13 +459,13 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   
   //Headings
   set heading(supplement: [Section])
-  show heading: set text(font: font_main, weight: "medium")
+  show heading: set text(font: font-main, weight: "medium")
   show heading: set par(leading: 1em)
   show heading.where(level: 1): set heading(supplement: [Chapter])
   show heading.where(level: 2): set block(above: 2em, below: 1em)
-  show heading.where(level: 2): set text(size: size_sub_heading)
+  show heading.where(level: 2): set text(size: size-sub-heading)
   show heading.where(level: 3): set block(above: 1.5em, below: 1em)
-  show heading.where(level: 3): set text(size: size_sub_sub_heading)
+  show heading.where(level: 3): set text(size: size-sub-sub-heading)
  
   //Figures out which heading to place depending on the state of the document
   show heading.where(level: 1): it => {
@@ -488,12 +488,12 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     foreground: place(bottom + right, dy: 17mm, dx: 13mm,image("LU-sigill.webp", height: 35%)))[
       #place(right + top, dy: 15%, 
         block(width: 80%, height: auto, inset: (right: 0pt, rest: 0.5cm), fill: white)[
-          #set text(font: font_secondary, size: size_secondary, fill: lth_bronze, weight: "black")
+          #set text(font: font-secondary, size: size-secondary, fill: lth-bronze, weight: "black")
           #set align(center)
           //#set par(leading: 0.75em)
-          #text(font: font_main, weight: "semibold", size: size_heading, thesis_title)
+          #text(font: font-main, weight: "semibold", size: size-heading, thesis_title)
           #v(0.7cm, weak: true)
-          #align(right, line(stroke: (paint: lth_bronze)))
+          #align(right, line(stroke: (paint: lth-bronze)))
           #set align(left)
           #upper()[
             #text(authors.map(author => author.name).intersperse(" & ").join()) \
@@ -511,14 +511,14 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     #set stack(dir: ttb)
     #set par(leading: 1em)
     #set text(size: 10pt, hyphenate: false)
-    #show title: text.with(size: 20pt, font: font_main, weight: "medium")
+    #show title: text.with(size: 20pt, font: font-main, weight: "medium")
     #context{
     grid(
       columns: 1fr,
       rows: auto,
       row-gutter: 1fr,
         title(),
-        text(size: size_sub_heading, subtitle),
+        text(size: size-sub-heading, subtitle),
       block(align(top, stack(dir: ltr, spacing: 2.5cm,
         ..authors.map(author => [
           #stack(spacing: par.leading, 
@@ -528,7 +528,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
           )
         ])
       ))),
-      stack(spacing: 1.5*par.leading, ..supervisors, if (examinor == none){par.leading} else {[Examiner: #examinor]}, if course_code == none [Course code: #course_code] else []),
+      stack(spacing: 1.5*par.leading, ..supervisors, if (examinor == none){par.leading} else {[Examiner: #examinor]}, if course-code == none [Course code: #course-code] else []),
       stack(spacing: 1.5*par.leading, ..affiliations),
       [
         #if (degree != none) {[A thesis submitted for the degree of \ _ #degree _]} \ \
@@ -551,7 +551,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   //Backcover, if print is true
   if print == true {
     page(paper: "sis-g5", margin: (x: 1cm, rest: 2cm))[
-      #set text(fill: lth_bronze, font: font_secondary, size: size_secondary, weight: "semibold")
+      #set text(fill: lth-bronze, font: font-secondary, size: size-secondary, weight: "semibold")
   
       #place(top + right, rotate(90deg, reflow: true, text(weight: "regular", size: 6pt, [Printed by Tryckeriet i E-huset, Lund #date.display("[year]")])))
       #align(bottom + center)[
