@@ -1,4 +1,4 @@
-#import "src/exjobb_eit.typ": thesis, frontmatter, mainmatter, flexCaption, backmatter
+#import "../src/exjobb_eit.typ": thesis, frontmatter, mainmatter, flexCaption, backmatter
 #import "@preview/lilaq:0.5.0" as lq
 
 #show: thesis.with(
@@ -21,7 +21,7 @@
 	),
 	degree: "Masters of Science in Engineering, Electrical Engineering",
 	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?]),
-	front_images: ("LTH_RGB_ENG.png", "LTH_BLACK_ENG.png"),
+	front_images: ("../example/LTH_RGB_ENG.png", "../example/LTH_BLACK_ENG.png"),
 	keywords: ("Keyword 1", "Keyword 2"),
 	description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
  heading_style: "original",
