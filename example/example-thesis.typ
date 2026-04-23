@@ -1,4 +1,4 @@
-#import "../src/exjobb_eit.typ": thesis, frontmatter, mainmatter, flexCaption, backmatter
+#import "../src/exjobb_eit.typ": *
 #import "@preview/lilaq:0.5.0" as lq
 
 #show: thesis.with(

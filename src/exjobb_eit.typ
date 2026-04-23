@@ -14,28 +14,37 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 //---------------------------------------------|  TEXT AND COLOR DEFINITIONS  |---------------------------------------------//
 
-//Text sizes
+// Text sizes
+
+// Body text size
 #let size-main = 10pt
+// Secondary text size, used in headings, footers and figure captions
 #let size-secondary = size-main * 0.9
+// Level 1 headings font size
 #let size-heading = size-main * 1.8
+// Level 2 headings font size
 #let size-sub-heading = size-main * 1.4
+// Level 3 headings font size
 #let size-sub-sub-heading = size-main * 1.2
 #let size-chapter-nbr = size-main * 4
 
-//Fonts
+// Fonts
+
+//Main font, used in body text
 #let font-main = "EB Garamond"
+// Secondary font, used in headers, headings, footers and figure captions
 #let font-secondary = "Lato"
 #let font-chapter-nbr = font-main
 #let font-code = "Source Code Pro"
 #let font-math = "Libertinus Math"
 
 //Colours, taken from the official graphic profile of Lund University
+
 #let lth-bronze = rgb(156, 97, 20) //cmyk(9%, 57%, 100%, 41%)
 #let lth-blue = rgb(0, 0, 128) //cmyk(100%, 85%, 5%, 22%)
 #let lth-grey = rgb(191, 184, 175)//cmyk(0%, 0%, 15%, 85%)
 #let lth-light_brown = rgb(214, 210, 196) //cmyk(3%, 4%, 14%, 8%)
 
-//Text colours
 #let colour-main = black
 #let colour-secondary = luma(25%)
 
@@ -50,6 +59,8 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 //---------------------------------------------|  STYLINGS  |---------------------------------------------//
 
 //Logic for numbering
+
+// Chapter numbering, single digit if level 1
 #let chapter-numbering(.. n) = {
   let numbers = n.pos()
   
@@ -65,18 +76,19 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let appendix-figure-numbering(n) = numbering("A.1", counter(heading).get().first(), n)
 #let appendix-equation-numbering(n) = numbering("(A.1)", counter(heading).get().first(), n)
 
-//Helper function for various elements
+//Determines whether or not the current page has a level 1 heading
 #let has-heading() = {
   return (query(heading.where(level: 1)).any(it => it.location().page() == here().page()))
 }
 
-//Footer
+//Footer for frontmatter
 #let front-footer() = {
   set align(center)
   set text(font: font-secondary, size: size-secondary)
   context counter(page).display()
 }
 
+//Footer for mainmatter
 #let main-footer() = {
   set align(center)
   set text(font: font-secondary, size: size-secondary)
@@ -86,8 +98,8 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   }
 }
 
-//Header
-//From the original LaTeX template
+//Headers
+//Header from the original LaTeX template
 #let header-original() = {
   set par(spacing: 0pt)
   set text(font: font-secondary, size: size-secondary)
@@ -138,6 +150,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   }
 }
 
+//A simple header style, but with alternating body between the last level 2 heading and the level 1 heading
 #let header-alternating() = {
   set text(font: font-secondary, size: size-secondary)
   let print(alignment, direction, body) = {
@@ -162,6 +175,8 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 }
 
 //Heading stylings
+
+//Heading style from the original LaTeX template
 #let heading-original(it) = {
   pagebreak(weak: true, to: "odd")
   set text(
@@ -189,6 +204,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   }
 }
 
+//A simplified heading
 #let heading-modified(it) = {
   pagebreak(weak: true, to: "odd")
   set text(
@@ -204,22 +220,16 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   ]) 
 }
 
-//Figure captions
-#let figure-caption(it) = {
-  set text(font: font-secondary, size: size-secondary)
-  block(width: 75%)[
-    #strong([#it.supplement #context{it.counter.display(it.numbering)}#it.separator])
-    #text(fill: colour-secondary)[#it.body]
-  ]
-}
-
 //Document state functions, to keep the main file clean. Use for example "#show: mainmatter" to begin the main part of the document.
+
+//Beginning of the frontmatter
 #let frontmatter(body) = {
   set page(numbering: "i", header: none, footer: front-footer())
   set heading(outlined: false, bookmarked: true)
   body
 }
 
+//Beginning of the mainmatter
 #let mainmatter(body) = {
   pagebreak(weak: true, to: "odd")
   set heading(numbering: chapter-numbering, outlined: true)
@@ -229,6 +239,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   body
 }
 
+//Beginning of the backmatter (Appendix)
 #let backmatter(body) = {
   set heading(numbering: "A.1")
   set figure(numbering: appendix-figure-numbering)
@@ -272,7 +283,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 //---------------------------------------------|  DOCUMENT TEMPLATE |---------------------------------------------//
 
-//Template function
+//Thesis template
 #let thesis(
   thesis-title: [Thesis title],
   subtitle: none,
@@ -416,7 +427,13 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   show figure.where(kind: table): set figure.caption(position: top)
   show figure.where(kind: table): set figure(supplement: [Table])
   show figure: block.with(above: 3em, below: 3em)
-  show figure.caption: it => figure-caption(it)
+  show figure.caption: it => {
+    set text(font: font-secondary, size: size-secondary)
+    block(width: 75%)[
+      #strong([#it.supplement #context{it.counter.display(it.numbering)}#it.separator])
+      #text(fill: colour-secondary)[#it.body]
+    ]
+  }
 
   //Tables
   show table.cell.where(y: 0): strong
