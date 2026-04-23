@@ -170,6 +170,30 @@ On #ref(<ref>, form: "page") you can find links. @latex-guide provides a guide f
 
 For documentation on all functions, markup- and styling commands, see @documentation.
 
+= Bulk text
+
+#let a = 200
+
+#let lorem2(b) = {
+  for i in range(20) {
+    [#lorem(b) #parbreak()]
+  }
+}
+
+#lorem2(a)
+
+== More text
+
+#lorem2(a)
+
+== Some even more
+
+#lorem2(a)
+
+== And even more!
+
+#lorem2(a)
+
 
 //This can also be in a seperate .bib/.yml file! Then you would simply write the relative path in #bibliography("PATH", ..)
 #let works = ```bib
