@@ -1,15 +1,11 @@
-#import "../src/exjobb_eit.typ": *
+#import "../src/exjobb_eit.typ": thesis, mainmatter, frontmatter, backmatter, flexCaption
 #import "@preview/lilaq:0.5.0" as lq
 
 #show: thesis.with(
-	print: true,
+	print: false,
 	thesis-title: [Test of exjobb_eit.typ],
-  subtitle: [An unofficial Typst template for degree project at Electrical and Information Technology at LTH, made by Lucas Ekholm (E22)],
-	short-title: [A shorter title],
-	examiner: [Some examiner],
-	supervisors: ([Academic Supervisor: Some Supervisor], [Company Supervisor: Another Supervisor]),
-	authors: (
-		(
+  authors: (
+    (
 			name: "Student A",
 			email: "Student.A@mail.com"
 		),
@@ -19,15 +15,17 @@
 			email: "Student.B@mail.com"
 		),
 	),
+  supervisors: ([Academic Supervisor: Some Supervisor], [Company Supervisor: Another Supervisor]),
+  thesis-subtitle: [An unofficial Typst template for degree project at Electrical and Information Technology at LTH, made by Lucas Ekholm (E22)],
+	short-title: [A shorter title],
+	examiner: [Some examiner],
 	degree: "Masters of Science in Engineering, Electrical Engineering",
-	affiliations: ([Department of Electrical and Information Technology \ Lund University], [Some company?]),
+  affiliations: ([Some company?],),
 	front-images: ("../example/LTH_RGB_ENG.png", "../example/LTH_BLACK_ENG.png"),
 	keywords: ("Keyword 1", "Keyword 2"),
 	description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
- heading-style: "original",
- header-style: "original",
-	date: datetime(year: 2022, month: 10, day: 22),
- report-id: highlight[Here goes the report id!]
+  date: datetime(year: 2022, month: 10, day: 22),
+  report-id: highlight[Here goes the report id!],
 )
 
 #show: frontmatter
@@ -118,18 +116,6 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 	caption: flexCaption([A figure with a longer caption. #lorem(50)], [A shorter caption, but links to the same figure!])
 )
 
-/*
-== Styling parameters
-
-#figure(
-	table(rows: 4, columns: 7, 
-		[], [Headings], [Sub-headings], [Sub-sub-headings], [Body], [Secondary text], [Tertiary], 
-		[Size], [#size_heading (Body)], [#size_sub_heading], [#size_sub_sub_heading], [#size_main], [#size_secondary], [-],
-		[Color], rect(fill: colour_heading), rect(fill: colour_heading), rect(fill: colour_heading), rect(fill: colour_main), rect(fill: colour_secondary), rect(fill: colour_tertiary)
-		),
-	caption: "Document types, their size and color."
-)*/
-
 = #flexCaption("New Chapter with a Long Title that Spanns over More Than One Line", "A New Chapter with a Short Title") <flexHeading>
 
 #grid(columns: 2, 
@@ -169,30 +155,6 @@ caption: [The Fibonacci sequence up to n = #count.])
 On #ref(<ref>, form: "page") you can find links. @latex-guide provides a guide for past LaTeX users on the differences between the two typesetting languages, including what's native or not native, which macros map to which function etc. @cite and @bibliography links to information on how to cite and reference different sources. Typst includes support for both its native YAML-based format and BibTeX. @universe gives a link to the Typst Universe. On this page you can find packages which aid in your workflow, both in terms of styling and automation. For example @vector-field was made using lilaq, a package used to make graphs inside the Typst environment. Another good package is Zap which is used to make circuit diagrams much like TikZ. @zap
 
 For documentation on all functions, markup- and styling commands, see @documentation.
-
-= Bulk text
-
-#let a = 200
-
-#let lorem2(b) = {
-  for i in range(20) {
-    [#lorem(b) #parbreak()]
-  }
-}
-
-#lorem2(a)
-
-== More text
-
-#lorem2(a)
-
-== Some even more
-
-#lorem2(a)
-
-== And even more!
-
-#lorem2(a)
 
 
 //This can also be in a seperate .bib/.yml file! Then you would simply write the relative path in #bibliography("PATH", ..)
