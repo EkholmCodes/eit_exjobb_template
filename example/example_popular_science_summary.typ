@@ -23,10 +23,10 @@
       #lorem(115) 
 ]
 
-= In total, there are exactly 3118 characters in the body and should be a maximum of 3000
+= In total, there are exactly 2998 characters in the body and should be a maximum of 3000
 
-#lorem(150)
+#lorem(141)
 #parbreak()
-#lorem(150)
+#lorem(140)
 #parbreak()
 #lorem(30)

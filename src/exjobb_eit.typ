@@ -666,7 +666,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       supervisor-singular : "Handledare",
       supervisors-plural : "Handledare",
       examiner: "Examinator",
-      popular-science-summary: "Populärvetenskaplig Sammanfattning",
+      popular-science-summary: "Populärvetenskaplig sammanfattning",
       presented: "Presenterad",
       availability: "Tillgänglig vid",
       figure-supplement: "Figur"
@@ -719,7 +719,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   show link: set text(fill: lth-blue)
 
   // The paper itself
-  page(paper: "a4", margin: (top: 1.5cm, rest: 2.5cm))[
+  page(margin: (top: 1.5cm))[
     #block(below: 1.5em+ 3mm, information())
     #par([#language-fields.at(lang).at("popular-science-summary") | *#authors.map(author => author.name).join(" & ")*])
     \
@@ -813,9 +813,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       #language-fields.at(lang).at(civic-number-label): #authors.map(author => author.civic-number).join(language-fields.at(lang).at("and-label")) #linebreak()
       #language-fields.at(lang).at("email"): #authors.map(author => author.email).join(language-fields.at(lang).at("and-label"))
       #linebreak()
-      #language-fields.at(lang).at("academic-supervisor"): #academic-supervisor
+      #language-fields.at(lang).at("academic-supervisor"): #academic-supervisor.name, #link("mailto:" + academic-supervisor.email )
       #linebreak()
-      #language-fields.at(lang).at("examiner"): #examiner
+      #language-fields.at(lang).at("examiner"): #examiner.name, #link("mailto:" + examiner.email)
       #linebreak()
       #language-fields.at(lang).at("project-start"): #start-date.display()
       #linebreak()
@@ -834,8 +834,8 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       language-fields.at(lang).at("examiner"),
       box(height: 100%, width: 90%, stroke: (bottom: (thickness: 1pt))),
       box(height: 100%, width: 90%, stroke: (bottom: (thickness: 1pt))),
-      academic-supervisor,
-      examiner)
+      academic-supervisor.name,
+      examiner.name)
   }
   set heading(numbering: "1. ")
   show heading: set text(font: font-main)
@@ -912,8 +912,8 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       language-fields.at(lang).at("examiner"),
       box(height: 100%, width: 90%, stroke: (bottom: (thickness: 1pt))),
       box(height: 100%, width: 90%, stroke: (bottom: (thickness: 1pt))),
-      academic-supervisor,
-      examiner)
+      academic-supervisor.name,
+      examiner.name)
   }
   set text(font: font-secondary, lang: lang)
   set figure(supplement: [Fig])
