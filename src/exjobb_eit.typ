@@ -1,7 +1,7 @@
 /*
 A template of the degreeproject at EIT (Electrical and Information Technology) Lund University by Lucas Ekholm (E22). This file includes templates for the thesis paper, popular science summary and goal document.
 
-Made in Typst 0.14.2
+Made in Typst 0.15
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -19,9 +19,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 // Body text size
 #let size-main = 10pt
 // Secondary text size, used in headers, footers and figure captions
-#let size-secondary = size-main * 0.9
+#let size-secondary = size-main * 0.8
 // Level 1 headings font size
-#let size-heading = size-main * 1.8
+#let size-heading = size-main * 2
 // Level 2 headings font size
 #let size-sub-heading = size-main * 1.4
 // Level 3 headings font size
@@ -29,7 +29,10 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let size-chapter-nbr = size-main * 4
 
 // Fonts
+
+// Serif font
 #let font-main = "EB Garamond"
+// Sans-serif font
 #let font-secondary = "Lato"
 #let font-chapter-nbr = font-main
 #let font-code = "Source Code Pro"
@@ -41,10 +44,10 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let lth-grey = rgb(191, 184, 175)//cmyk(0%, 0%, 15%, 85%)
 #let lth-light_brown = rgb(214, 210, 196) //cmyk(3%, 4%, 14%, 8%)
 #let colour-main = black
-#let colour-secondary = luma(25%)
+#let colour-secondary = luma(5%)
 
 // States
-#let document-state = state("document-state", "front")
+#let document-state = state("doc-state", "none")
 
 // Outline state, used for the flexCaption function
 #let in-outline = state("in-outline", false)
@@ -63,60 +66,55 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       numbering("1.1", ..numbers) 
     }
 }
+// Appendix numbering, single letter if level 1
+#let _appendix-chapter-numbering(.. n) = {
+  let numbers = n.pos()
+  
+  if numbers.len() == 1 {
+      numbering("A", ..numbers)
+    } else {
+      numbering("A.1", ..numbers)
+    }
+}
 
 #let _figure-numbering(n) = numbering("1.1", counter(heading).get().first(), n)
 #let _equation-numbering(n) = numbering("(1.1)", counter(heading).get().first(), n)
 #let _appendix-figure-numbering(n) = numbering("A.1", counter(heading).get().first(), n)
 #let _appendix-equation-numbering(n) = numbering("(A.1)", counter(heading).get().first(), n)
 
-// Determines whether or not the current page has a level 1 heading
-#let _has-heading() = {
-  return (query(heading.where(level: 1)).any(it => it.location().page() == here().page()))
-}
 
-// Footer for frontmatter
-#let _front-footer() = {
-  set align(center)
-  set text(font: font-secondary, size: size-secondary)
-  context counter(page).display()
-}
 
-// Footer for mainmatter
-#let _main-footer() = {
-  set align(center)
-  set text(font: font-secondary, size: size-secondary)
-  context {
-    if(_has-heading()){counter(page).display()}
-    else{none}
-  }
-}
-
-// Document state functions, to keep the main file clean. Use for example "#show: mainmatter" to begin the main part of the document.
+// Document state functions, to keep the main file clean. Use for example "#mainmatter()" to begin the main part of the document.
 
 // Beginning of the frontmatter
 #let frontmatter(body) = {
-  set page(numbering: "i", header: none, footer: _front-footer())
-  set heading(outlined: false, bookmarked: true)
+  set heading(outlined: false, bookmarked: true, numbering: none)
+  document-state.update("front")
   body
 }
 
 // Beginning of the mainmatter
 #let mainmatter(body) = {
-  pagebreak(weak: true, to: "odd")
+  pagebreak(to: "odd")
   set heading(numbering: _chapter-numbering, outlined: true)
-  set page(header: context state("header").get(), numbering: "1", footer: _main-footer())
+  set page(header: context state("header").get(), numbering: "1")
   counter(page).update(1)
   counter(heading).update(0)
+  document-state.update("main")
   body
 }
 
 // Beginning of the backmatter (Appendix)
 #let backmatter(body) = {
-  set heading(numbering: "A.1")
+  pagebreak(to: "odd")
+  set heading(numbering: _appendix-chapter-numbering)
   set figure(numbering: _appendix-figure-numbering)
+  set math.equation(numbering: _appendix-equation-numbering)
   show heading.where(level: 1): set heading(supplement: [Appendix])
   counter(heading).update(0)
+  document-state.update("back")
   body
+  
 }
 
 // Custom captions, used when wanting two different texts from the main body and the outline
@@ -124,17 +122,18 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 //---------------------------------------------|  THESIS  |---------------------------------------------//
 
-// Thesis template
+// Thesis template. Inspired by a lot of different thesis templates, in particular Lund, Chalmers and Uppsala
 #let thesis(
   thesis-title: none,
   authors: none,
   supervisors: none,
   examiner: none,
   thesis-subtitle: none,
-  short-title: [A shorter title],  
+  short-title: [A shorter title],
   affiliations: (),
   degree: none,
-  front-images: (),
+  course-code: [EITM01],
+  front-images: ("LundUniversity_C_BLACK.png",),
   description: none,
   keywords: (),
   print: false,
@@ -146,7 +145,15 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   body
   ) = {
 
+  let department = "Department of Electrical and Information Technology"
+  let department-short = "EIT"
+  let department-link = link("http://www.eit.lth.se")
+
   // Headers
+  // Determines whether or not the current page has a level 1 heading
+  let _has-heading() = {
+    return (query(heading.where(level: 1)).any(it => it.location().page() == here().page()))
+  }
   // Header from the original LaTeX template
   let header-original() = {
     set par(spacing: 0pt)
@@ -174,58 +181,70 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     }
   }
   
-  // A simplified header style, made for this template
-  let header-simple() = {
-    set par(spacing: 0pt)
+  // A simple header style, but with alternating body between the last level 2 heading and the level 1 heading
+  let header-alternating() = {
     set text(font: font-secondary, size: size-secondary)
-    let print(alignment, direction, heading) = {
+    let print(alignment, body) = {
+      
+      let direction = none
+      if alignment == left {direction = ltr}
+      else if alignment == right {direction = rtl}
+      
       set align(alignment)
       stack(dir: direction, spacing: 1em, 
         text(counter(page).display()), 
         [|],
-        text(heading.body))
+        text(body, style: "italic"))
     }
     context {
       if(_has-heading()){none}
       else{
-        let heading = query(selector(heading.where(level: 1)).before(here())).last()
+        let heading1 = query(selector(heading.where(level: 1)).before(here())).last(default: none)
+        let heading2 = query(
+          selector(heading.where(level: 2))
+          .after(heading1.location())
+          .before(here()))
+          .last(default: heading1)
         if calc.even(counter(page).get().first()) {
-          print(left, ltr, heading)
+          if heading1.numbering == none {
+            print(left, heading1.body)
+          }
+          else {
+            print(left, [#heading1.supplement #counter(heading).display(at: heading1.location()) #heading1.body])
+          }
         } else {
-          print(right, rtl, heading)
+          if heading2.numbering == none {
+            print(right, heading2.body)
+          }
+          else{
+            print(right, [#counter(heading).display(at: heading2.location()) #heading2.body])
+          }
+          
         }
       }
     }
   }
-  
-  // A simple header style, but with alternating body between the last level 2 heading and the level 1 heading
-  let header-alternating() = {
+
+  // Footer for frontmatter
+  let _front-footer() = {
+    set align(center)
     set text(font: font-secondary, size: size-secondary)
-    let print(alignment, direction, body) = {
-      set align(alignment)
-      stack(dir: direction, spacing: 1em, 
-        text(counter(page).display()), 
-        [|],
-        text(body))
-    }
+    context counter(page).display()
+  }
+  
+  // Footer for mainmatter
+  let _main-footer() = {
+    set align(center)
+    set text(font: font-secondary, size: size-secondary, style: "italic")
     context {
-      if(_has-heading()){none}
-      else{
-        let heading1 = query(selector(heading.where(level: 1)).before(here())).last()
-        let heading2 = query(selector(heading.where(level: 2)).before(here())).last(default: heading1)
-        if calc.even(counter(page).get().first()) {
-          print(left, ltr, heading1.body)
-        } else {
-          print(right, rtl, heading2.body)
-        }
-      }
+      if(_has-heading()){counter(page).display()}
+      else{none}
     }
   }
 
   // Heading stylings
   // Heading style from the original LaTeX template
   let heading-original(it) = {
-    pagebreak(weak: true, to: "odd")
     set text(
       font: font-secondary,
       weight: "regular",
@@ -233,7 +252,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     )
     set align(right)
     set block(below: 15mm)
-    let has-numbering = it.numbering != none
+    let has-numbering = (it.numbering != none)
     if true {
       v(size-chapter-nbr)
       block()[
@@ -252,8 +271,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   }
 
   // A simplified heading
-  let heading-modified(it) = {
-    pagebreak(weak: true, to: "odd")
+  let heading-new(it) = {
     set text(
       font: font-main,
       hyphenate: false
@@ -262,7 +280,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     set par(leading: 1em)
     set block(width: 100%, height: 3cm, below: 2cm)
     block(align(bottom)[
-      #text(size: size-sub-sub-heading)[#if it.numbering != none [#it.supplement #counter(heading).display(it.numbering)]] \ \
+      #text(size: size-main)[#if it.numbering != none [#it.supplement #counter(heading).display(it.numbering)]] \ \
       #text(size: size-heading, it.body)
     ]) 
   }
@@ -291,21 +309,20 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   if type(front-cover-background) != content {panic("Variable 'front-cover-background' must be of type content")}
   if report-id == none and print == true {panic("Thesis must have a report-id to be printed!")}
 
-  if header-style not in("original", "mod", "alternating"){panic("Variable header-style must be either original (default) or mod.")}
-  if heading-style not in ("original", "mod"){panic("Variable heading-style must be either original (defualt) or mod.")}
+  if header-style not in("original", "novel"){panic("Variable header-style must be either original (default) or novel.")}
+  if heading-style not in ("original", "novel"){panic("Variable heading-style must be either original (defualt) or novel.")}
 
   //Selecting which header is used
   if header-style == "original" {state("header").update(header-original())}
-  else if header-style == "mod" {state("header").update(header-simple())}
-  else if header-style == "alternating" {state("header").update(_ => header-alternating())}
+  else if header-style == "novel" {state("header").update(header-alternating())}
 
   // Selecting which heading is used
   if heading-style == "original" {
     state("heading").update(_ => heading-original)
     
   }
-  else if heading-style == "mod" {
-    state("heading").update(_ => heading-modified)
+  else if heading-style == "novel" {
+    state("heading").update(_ => heading-new)
   }
   
   // Set rules
@@ -328,9 +345,26 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     number-align: center + bottom,
     footer-descent: 0% + 7.5mm,
     header-ascent: 0% + 7.5mm,
+    footer: context {
+      let doc-state = document-state.get()
+      if doc-state == "front" {_front-footer()}
+      else if doc-state in ("main", "back") {_main-footer()}
+      else {none}},
+    header: context {
+      let doc-state = document-state.get()
+      if doc-state == "front" {none}
+      else if doc-state == "main" {state("header").get()}
+    },
+    numbering: (..num) => context {
+      let doc-state = document-state.get()
+      if doc-state == "front" {numbering("i", ..num)}
+      else if doc-state == "main" {numbering("1", ..num)}
+      else if doc-state == "back" {numbering("1", ..num)}
+      else {numbering("1", ..num)}
+    },
   )
 
-  // Calculated necessary margins for the document depending if print == true or false
+  // Calculated necessary margins for the document depending if print == true or false. sis-g5 has dimensions 169x239mm
   let (g5_width, g5_height) = (169mm, 239mm)
   let (a4_width, a4_height) = (210mm, 297mm)
   let (a4_offset_width, a4_offset_height) = ((a4_width - g5_width) / 2, (a4_height - g5_height) / 2)
@@ -349,7 +383,6 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       rest: vertical + a4_offset_height,
       ),
     binding: left,
-    numbering: none,
     background: [
       #set text(size: 12pt)
       #place(center, dy: 22.5mm)[
@@ -370,11 +403,14 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   
   // Text
   set text(
-   font: font-main,
-   fill: colour-main,
-   weight: "regular",
-   size: size-main,
+    lang: "en",
+    font: font-main,
+    fill: colour-main,
+    weight: "regular",
+    size: size-main,
   )
+
+  show smallcaps: text.with(tracking: 0.5pt)
   
   // Line
   set line(length: 100%,
@@ -477,10 +513,11 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   
   // Figures out which heading to place depending on the state of the document
   show heading.where(level: 1): it => {
+    pagebreak(weak: true, to: "odd")
     resetCounters()
     state("heading").get()(it)
   }
-
+  
   // Bibliography
   set bibliography(style: "ieee")
 
@@ -495,64 +532,78 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     background: box(width: 100%-10mm, height: 100%-10mm, stroke: none)[#front-cover-background],
     foreground: place(bottom + right, dy: 17mm, dx: 13mm,image("LU-sigill.webp", width: 50%)))[
       #place(right + top, dy: 15%, 
-        block(width: 4*20%, height: auto, inset: (right: 5mm, rest: 5mm), outset: (right: 5mm), fill: white)[
+        block(width: 4*20%, height: auto, inset: 5mm, outset: (right: 5mm), fill: white)[
+          #set par(leading: 2mm)
           #set text(font: font-secondary, size: size-secondary, fill: lth-bronze, weight: "black")
           #set align(center)
-          #text(font: font-main, weight: "semibold", size: size-heading, thesis-title)
-          #v(0.7cm, weak: true)
+          #text(font: font-main, weight: "semibold", size: size-heading, thesis-title) 
+          #linebreak()
           #set align(left)
           #line(length: 100% + 5mm, stroke: (paint: lth-bronze))
           #upper()[
             #text(authors.map(author => author.name).intersperse(" & ").join()) \
             Master's Thesis \
-            Department of Electrical and Information Technology \
+            #department \
             Faculty of Engineering | LTH | Lund University
           ]
         ]
       )
-  ]}
+  ]
+  pagebreak(to: "odd")
+}
 
-  // Main title page
-  page([
+  // Title page
+  page()[
     #set align(center + horizon)
     #set stack(dir: ttb)
-    #set par(leading: 1em)
-    #set text(size: 10pt, hyphenate: false)
-    #show title: text.with(size: 20pt, font: font-main, weight: "medium")
+    #let print-authors = context {
+      align(top, grid(rows: 1, columns: authors.len(), column-gutter: 2cm,..authors.map(author => [
+            #stack(spacing: par.leading, 
+              text(size: size-sub-sub-heading, weight: "regular", author.name), 
+              if "affiliation" not in author.keys(){v(par.leading)} else {author.affiliation},
+              if "email" not in author.keys(){par.leading} else {link("mailto:" + str(author.email))}
+            )
+          ])))
+    }
+    #show link: emph
+    #show title: text.with(size: size-heading, font: font-main, weight: "semibold")
     #context{
-    grid(
-      columns: 1fr,
-      rows: (auto),
-      row-gutter: 1fr,
-      box()[
-        #v(1cm)
-        #block(title())
-        #if thesis-subtitle != none {block(above: 1cm)[#text(size: size-sub-heading, thesis-subtitle)]}
-        #v(5mm)
-      ],
-      block(align(top, stack(dir: ltr, spacing: 2.5cm,
-        ..authors.map(author => [
-          #stack(spacing: par.leading, 
-            text(size: 12pt, weight: "medium", author.name), 
-            if "affiliation" not in author.keys(){v(par.leading)} else {author.affiliation},
-            if "email" not in author.keys(){v(par.leading)} else {emph(link("mailto:" + str(author.email)))}
-          )
-        ])
-      ))),
-      stack(spacing: 1.5*par.leading, ..supervisors, if (examiner == none){par.leading} else {[Examiner: #examiner]}),
-      stack(spacing: 1.5*par.leading, ..(([Department of Electrical and Information Technology \ Lund University],) + affiliations)),
-      [
-        #if (degree != none) {[A thesis submitted for the degree of \ _ #degree _]} \ \
-        #date.display("[month repr:long] [day padding:none], [year]")
-      ],
-      if front-images.len() != 0 {grid(column-gutter: 0.2fr, columns: (1fr,) * front-images.len(), ..front-images.map(img => image(img, fit: "contain", height: 4cm)))},
-    )
-  }])
+      block(height: 90%, 
+        grid(
+          columns: 1,
+          row-gutter: (1fr, 1fr, 0.5fr),
+          
+          [#smallcaps(text("Master's thesis"/* + " " + str(date.year())*/, size: size-main)) /*#if (degree == none) {[#parbreak() Submitted for the degree of #linebreak() _ #degree _]}*/],
+          
+          grid(row-gutter: (3em), 
+            title(),
+            text(thesis-subtitle, size: size-sub-sub-heading),
+            print-authors,
+          ),
+
+          date.display("[month repr:long] [day padding:none], [year]"),
+  
+          //if affiliations.len() != 0 {[Thesis work conducted at #affiliations.join(" & ")]},
+          
+          if front-images.len() != 0 {grid(column-gutter: 0.2fr, columns: (1fr,) * front-images.len(), ..front-images.map(img => image(img, fit: "contain", height: 3cm)))},
+          
+          smallcaps([#department \ Faculty of Engineering | LTH | Lund University]),
+        )
+      )
+    }
+  ]
   
   // Print page
   page()[
-    #set par(leading: 0.4em)
-      #place(bottom + left, [Typeset in Typst #sys.version \ \ #sym.copyright #date.year() \ Printed in Sweden \ Tryckeriet i E-huset, Lund])
+    #set align(bottom)
+    #set par(first-line-indent: 0pt)
+    #show link: emph
+    #v(0.5fr)
+    #thesis-title \ #thesis-subtitle \ #authors.map(author => author.name).join(" & ") \ \ 
+    #supervisors.join([ \ ]) \
+    Examiner: #examiner /* \ #affiliations.join([, ])*/ \ \ #course-code \ #report-id \ \ #department \ Faculty of Engineering, LTH, Lund University \ SE-221 00 Lund, Sweden
+    #v(1fr)
+    Typeset in Typst #sys.version \ \ #sym.copyright /*#authors.map(author => author.name).join(" & "), */ #authors.map(author => author.name).join(" & "), #date.year() \ Printed by Tryckeriet i E-huset \ Lund, Sweden
   ]
   
   // Beginning of document
@@ -563,15 +614,15 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   if print == true {
     page(paper: "sis-g5", margin: (x: 1cm, rest: 2cm))[
       #set text(fill: lth-bronze, font: font-secondary, size: size-secondary, weight: "semibold")
-  
+
       #place(top + right, rotate(90deg, reflow: true, text(weight: "regular", size: 6pt, [Printed by Tryckeriet i E-huset, Lund #date.display("[year]")])))
       #align(bottom + center)[
       #image("LU_RGB_ENG.png", height: 4cm) \  
       Series of Master's theses \
-      Department of Electrical and Information Technology \
-      LU/LTH-EIT #date.display("[year]")-#report-id \
-      #link("http://www.eit.lth.se")]
-    ]}
+      #department \
+      LU/LTH-#department-short #date.display("[year]")-#report-id \
+      #department-link
+    ]]}
 }
 
 //---------------------------------------------|  POPULAR SCIENCE SUMMARY |---------------------------------------------//
@@ -646,11 +697,12 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     if authors.len() > 1 {students = "students-plural"} else {students = "student-singular"}
     if supervisor.len() > 1 {supervisor-label = "supervisors-plural"} else {supervisor-label = "supervisor-singular"}
     box(stroke: (left: (thickness: 1.5pt, paint: lth-bronze, cap: "round")), outset: 3mm)[
-      #(language-fields.at(lang).at("department") + " | " + language-fields.at(lang).at("faculty"))
       
+      #language-fields.at(lang).at("department") | #language-fields.at(lang).at("faculty") | #language-fields.at(lang).at("presented") #presentation-date.display("[day padding:none] [month repr:long] [year]")
+      \ \
       #block[
         #strong(upper(language-fields.at(lang).at("degree-project"))) #h(spacing) #original-title #linebreak()
-        #strong(upper(language-fields.at(lang).at(students))) #h(spacing) #authors.join(" & ") #linebreak()
+        #strong(upper(language-fields.at(lang).at(students))) #h(spacing) #authors.map(author => author.name).join(" & ") #linebreak()
         #strong(upper(language-fields.at(lang).at(supervisor-label))) #h(spacing) #supervisor.join(", ") #linebreak()
         #strong(upper(language-fields.at(lang).at("examiner"))) #h(spacing) #examiner
         #if thesis-link != none [#parbreak() #language-fields.at(lang).at("availability") #link(thesis-link)]
@@ -659,22 +711,22 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   }
   
   set text(size: size-main, font: font-secondary, lang: lang)
-  set heading(offset: 1, outlined: false, bookmarked: false)
+  set heading(level: 2, outlined: false, bookmarked: false)
   set par(spacing: 0.5em)
   set figure(supplement: language-fields.at(lang).at("figure-supplement"), numbering: "1")
-  set document(author: authors, date: presentation-date, title: summary-title)
+  set document(author: authors.map(author => author.name), date: presentation-date, title: summary-title)
   show link: set text(fill: lth-blue)
 
   // The paper itself
-  page(paper: "a4", margin: (top: 1.5cm, rest: 2.5cm))[
+  page(paper: "a4", margin: (rest: 2.5cm))[
     #block(below: 1.5em+ 3mm, information())
-    #par(upper(text(size: size-main, [#language-fields.at(lang).at("popular-science-summary") | #language-fields.at(lang).at("presented") #presentation-date.display("[day padding:none] [month repr:long] [year]")])) )
+    #par([#language-fields.at(lang).at("popular-science-summary") | *#authors.map(author => author.name).join(" & ")*])
     \
-    #par(text(size: size-heading + 2pt, font: font-main, weight:  "semibold",  fill: lth-bronze, summary-title)) \
+    #par(text(size: size-heading, font: font-main, weight:  "semibold",  fill: lth-bronze, summary-title)) \
     #set par(justify: true, first-line-indent: 1em)
     #par(strong(text(lead-paragraph, font: font-main, size: size-main*1.1)))
     #v(1em)
-    #columns(2, gutter: 2em, body)
+    #columns(2, gutter: 5%, body)
   ]
 }
 
@@ -682,7 +734,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 // Template for the goal document. Based on the docx template provided by Peter Nilsson at EIT.
 #let goal-document(
-  thesis-title: none,
+  tentative-title: none,
   authors: none,
   start-date: none,
   end-date: none,
@@ -694,7 +746,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 ) = {
 
   // Panics
-  if thesis-title == none {panic("Missing required argument 'thesis-title'.")}
+  if tentative-title == none {panic("Missing required argument 'tentative-title'.")}
   if authors == none {panic("Missing required argument 'authors'.")}
   if start-date == none {panic("Missing required argument 'start-date'.")}
   if end-date == none {panic("Missing required argument 'end-date'.")}
@@ -711,6 +763,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   // Dictionary containing predetermined words and sentences in both english and swedish.
   let language-fields = (
     sv : (
+      subtitle-phrase: "Ett Måldokument för Examensarbete på Avancerad Nivå",
+      by-phrase: "Av",
+      department-phrase: [Instutitionen för elektro- och informationteknik \ Lunds Tekniska Högskola, LTH, Lunds Universitet \ SE-221 00 Lund, Sverige],
       student-singular: "Student",
       student-plural: "Studenter",
       civic-number-singular: "Personnummer",
@@ -722,10 +777,24 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       project-end: "Arbetet avslutas",
       course-code: "Kurskod",
       and-label: " och ",
-      signing-line: "Detta måldokument är godkänt av"
+      signing-line: "Detta måldokument är godkänt av",
     ),
     en: (
-      
+      subtitle-phrase: "A Goal Document for Master's Thesis Work",
+      by-phrase: "By",
+      department-phrase: [Department of Electrical and Information Technology \ Faculty of Engineering, LTH, Lund University \ SE-221 00 Lund, Sweden],
+      student-singular: "Student",
+      student-plural: "Students",
+      civic-number-singular: "Civic registration number",
+      civic-number-plural: "Civic registration numbers",
+      email: "Email address",
+      academic-supervisor: "Main supervisor",
+      examiner: "Examiner",
+      project-start: "Project start",
+      project-end: "Project end",
+      course-code: "Course code",
+      and-label: " and ",
+      signing-line: "This goal document is approved by"
     )
   )
 
@@ -736,7 +805,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     if authors.map(author => author.name).len() > 1 {student-label = "student-plural"} else {student-label = "student-singular"}
     if authors.map(author => author.civic-number).len() > 1 {civic-number-label = "civic-number-plural"} else {civic-number-label = "civic-number-singular"}
     
-    block(stroke: (left: (thickness: 1pt)), outset: 2mm, below: 3em)[
+    block(stroke: (left: (thickness: 1pt)), outset: 2mm)[
       #set par(leading: 0.75em)
       #language-fields.at(lang).at(student-label): #authors.map(author => author.name).join(language-fields.at(lang).at("and-label")) 
       #linebreak()
@@ -759,31 +828,54 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   let signing() = {
     language-fields.at(lang).at("signing-line") + ":"
     v(0.5em)
-    grid(columns: (1fr, 1fr), rows: (auto, 1cm, auto), row-gutter: 1em, column-gutter: 5cm,
+    grid(columns: (1fr, 1fr), rows: (auto, 1cm, auto), row-gutter: 1em, column-gutter: 2cm,
       language-fields.at(lang).at("academic-supervisor"),
       language-fields.at(lang).at("examiner"),
-      box(height: 100%, width: 100%, stroke: (bottom: (thickness: 1pt))),
-      box(height: 100%, width: 100%, stroke: (bottom: (thickness: 1pt))),
+      box(height: 100%, width: 90%, stroke: (bottom: (thickness: 1pt))),
+      box(height: 100%, width: 90%, stroke: (bottom: (thickness: 1pt))),
       academic-supervisor,
       examiner)
   }
-
-  set text(font: font-main)
   set heading(numbering: "1. ")
+  show heading: set text(font: font-main)
+  set text(font: font-secondary, lang: lang)
+  set figure(supplement: [Fig])
+  set page(numbering: "1/1")
+
+  set document(
+    author: authors.map(author => author.name),
+    title: tentative-title,
+  )
   
   //Title page
-  page()[]
+  page(numbering: none)[
+    #set text(font: font-main, size: size-sub-sub-heading)
+    #set align(horizon + center)
+    #show title: set text(size: size-heading + 2pt)
+    #place(top + left, image("LU_RGB_ENG.png", width: 3cm))
+    #block(height: 40%,
+      grid(columns: 1, rows: auto, row-gutter: 1fr,
+        title(),
+        text(size: size-sub-heading, language-fields.at(lang).at("subtitle-phrase")),
+        [#language-fields.at(lang).at("by-phrase") \
+        #stack(dir: ltr, spacing: 2em, ..authors.map(author => author.name))],
+        language-fields.at(lang).at("department-phrase"),
+        text(size: size-sub-heading, str(start-date.year()))
+      )
+    )
+  ]
 
-  information()
+  counter(page).update(1)
+  block(below: 3em, information())
   
   body
-
+  
   block(above: 2cm, signing())
 }
 
 //---------------------------------------------|  PROJECT PLAN  |---------------------------------------------//
 
-//Template for the project plan, used after the goal document but in the same .typ file. Based on the docx template by Peter Nilsson at EIT
+// Template for the project plan, used after the goal document but in the same .typ file. Based on the docx template by Peter Nilsson at EIT
 #let project-plan(
   academic-supervisor: none,
   examiner: none,
@@ -806,7 +898,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     en: (
       academic-supervisor: "Main Supervisor",
       examiner: "Examiner",
-      signing-line: "This projektplan is approved by"
+      signing-line: "This project plan is approved by"
     )
   )
 
@@ -814,14 +906,16 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   let signing() = {
     language-fields.at(lang).at("signing-line") + ":"
     v(0.5em)
-    grid(columns: (1fr, 1fr), rows: (auto, 1cm, auto), row-gutter: 1em, column-gutter: 5cm,
+    grid(columns: (1fr, 1fr), rows: (auto, 1cm, auto), row-gutter: 1em, column-gutter: 2cm,
       language-fields.at(lang).at("academic-supervisor"),
       language-fields.at(lang).at("examiner"),
-      box(height: 100%, width: 100%, stroke: (bottom: (thickness: 1pt))),
-      box(height: 100%, width: 100%, stroke: (bottom: (thickness: 1pt))),
+      box(height: 100%, width: 90%, stroke: (bottom: (thickness: 1pt))),
+      box(height: 100%, width: 90%, stroke: (bottom: (thickness: 1pt))),
       academic-supervisor,
       examiner)
   }
+  set text(font: font-secondary, lang: lang)
+  set figure(supplement: [Fig])
 
   body 
 

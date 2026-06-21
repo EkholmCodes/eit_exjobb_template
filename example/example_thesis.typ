@@ -1,31 +1,24 @@
 #import "../src/exjobb_eit.typ": thesis, mainmatter, frontmatter, backmatter, flexCaption
+#import "metadata.typ": *
 #import "@preview/lilaq:0.5.0" as lq
+
+#let keywords = ("Keyword 1", "Keyword 2")
 
 #show: thesis.with(
 	print: false,
-	thesis-title: [Test of exjobb_eit.typ],
-  authors: (
-    (
-			name: "Student A",
-			email: "Student.A@mail.com"
-		),
-		(
-			name: "Student B",
-			affiliation: "Lund University",
-			email: "Student.B@mail.com"
-		),
-	),
-  supervisors: ([Academic Supervisor: Some Supervisor], [Company Supervisor: Another Supervisor]),
-  thesis-subtitle: [An unofficial Typst template for degree project at Electrical and Information Technology at LTH, made by Lucas Ekholm (E22)],
+	thesis-title: title,
+  authors: authors,
+  supervisors: supervisors,
+  thesis-subtitle: subtitle,
 	short-title: [A shorter title],
-	examiner: [Some examiner],
-	degree: "Masters of Science in Engineering, Electrical Engineering",
-  affiliations: ([Some company?],),
-	front-images: ("../example/LTH_RGB_ENG.png", "../example/LTH_BLACK_ENG.png"),
-	keywords: ("Keyword 1", "Keyword 2"),
+	examiner: examiner,
+	//degree: "Masters of Science in Engineering, Electrical Engineering",
+  affiliations: affiliations,
+	//front-images: ("../example/LU"),
+	keywords: keywords,
 	description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
-  date: datetime(year: 2022, month: 10, day: 22),
-  report-id: highlight[Here goes the report id!],
+  date: end-date,
+  report-id: none,
 )
 
 #show: frontmatter
@@ -34,25 +27,24 @@
 
 #lorem(75)
 
-#lorem(50)
-
 #set terms(tight: false, spacing: 5mm)
 #for (abb, des) in (
 	"EIT": "Engineering Is (never) Trivial",
 	"LED": "Let's Emit Dazzle",
 	"MOSFET" : "Mostly Our Small Friend Enabling Transistor",
 	"AC" : "Actually Confusing",
-	"IC" : "Infinite Confusion",
 	"EMC" : "Engineers' Major Complaint",
 	"CODE" : "Computers Only Do Exactly (what you tell them)",
 	"PING" : "Packet Is Now Going"
 ).pairs().sorted() [/ #abb: #des]
 
 #align(center)[
-	#quote(block: true, quotes: true, attribution: [Markus Törmänen #footnote([Translated. Original quote in Swedish.]), spring 2025])[
+  #quote(block: true, quotes: true, attribution: [Markus Törmänen #footnote([Translated. Original quote in Swedish.]), spring 2025])[
 		To mature as an electrical engineer is to realize everything is about impedances.
 	]
 ]
+
+#align(bottom)[*Keywords:* #keywords.join(", ")]
 
 #outline(title: "Table of Contents") <outline>
 #outline(title: "List of Figures", target: figure.where(kind: image))
@@ -112,7 +104,7 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 ]
 
 #figure(
-	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), letter()))),
+	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 75pt, fill: luma(10%), letter()))),
 	caption: flexCaption([A figure with a longer caption. #lorem(50)], [A shorter caption, but links to the same figure!])
 )
 
@@ -120,11 +112,11 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 
 #grid(columns: 2, 
 	[#figure(
-	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), letter()))),
+	block(width: 5cm, height: 2.5cm, fill: luma(80%), align(center + horizon, text(size: 75pt, fill: luma(10%), letter()))),
 	caption: "A figure together with another figure."
 	) <figureB> ], [
 	#figure(
-	block(width: 5cm, height: 3cm, fill: luma(80%), align(center + horizon, text(size: 90pt, fill: luma(10%), letter()))),
+	block(width: 5cm, height: 2.5cm, fill: luma(80%), align(center + horizon, text(size: 75pt, fill: luma(10%), letter()))),
 	caption: flexCaption([This figure can have a long caption and still fit if done this way. #lorem(10)], [This figure can have a long caption and still fit.])
 ) <figureC>])
 
