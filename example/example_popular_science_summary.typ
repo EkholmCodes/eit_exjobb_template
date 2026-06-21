@@ -6,7 +6,7 @@
   summary-title:[The title should contain a maximum of 100 characters #lorem(7)],
   original-title: title,
   authors: authors,
-  supervisor: supervisors,
+  supervisors: supervisors,
   examiner: examiner,
   lead-paragraph: [The lead paragraph (abstract) should contain a maxmimum of 200 characters/35 words given the maximum is reached on the title. #lorem(35 - 12)],
   thesis-link: "https://www.student.lth.se/english/masters-students/degree-project/popular-science-readership/",

@@ -299,8 +299,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   if supervisors == none {panic("Missing required argument 'supervisors'")}
   if examiner == none {panic("Missing required argument 'examiner'")}
   
-  if type(authors) != array {panic("Variable 'authors' must be of type array.")}
-  if type(supervisors) != array {panic("Variable 'supervisors' must be of type array.")}
+  if type(authors) != array {panic("Variable 'authors' must be of type array ((name, email),).")}
+  if type(supervisors) != dictionary {panic("Variable 'supervisors' must be of type dictionary (academic: (name, email, affiliation), company: (name, email, affiliation))")}
+  if type(examiner) != dictionary {panic("Variable 'examiner' must be of type dictionary (name, email)")}
   if type(affiliations) != array {panic("Variable 'affiliations' must be of type array.")}
   if type(front-images) != array {panic("Variable 'front-images' must be of type array.")}
   if type(keywords) != array {panic("Variable 'keywords' must be of type array")}
@@ -600,8 +601,8 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     #show link: emph
     #v(0.5fr)
     #thesis-title \ #thesis-subtitle \ #authors.map(author => author.name).join(" & ") \ \ 
-    #supervisors.join([ \ ]) \
-    Examiner: #examiner /* \ #affiliations.join([, ])*/ \ \ #course-code \ #report-id \ \ #department \ Faculty of Engineering, LTH, Lund University \ SE-221 00 Lund, Sweden
+    #supervisors.values().map(supervisor => [#supervisor.name  (#supervisor.affiliation), #link("mailto:" + supervisor.email)]).join(linebreak()) \
+    Examiner: #examiner.name, #link("mailto:" + examiner.email) /* \ #affiliations.join([, ])*/ \ \ #course-code \ #report-id \ \ #department \ Faculty of Engineering, LTH, Lund University \ SE-221 00 Lund, Sweden
     #v(1fr)
     Typeset in Typst #sys.version \ \ #sym.copyright /*#authors.map(author => author.name).join(" & "), */ #authors.map(author => author.name).join(" & "), #date.year() \ Printed by Tryckeriet i E-huset \ Lund, Sweden
   ]
@@ -632,7 +633,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   summary-title: none,
   original-title: none,
   authors: none,
-  supervisor: none,
+  supervisors: none,
   examiner: none,
   lead-paragraph: none,
   thesis-link: none,
@@ -645,12 +646,13 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   if summary-title == none {panic("Missing required argument 'summary-title'.")}
   if original-title == none {panic("Missing required argument 'original-title'.")}
   if authors == none {panic("Missing required argument 'authors'.")}
-  if supervisor == none {panic("Missing required argument 'superivsor'.")}
+  if supervisors == none {panic("Missing required argument 'superivsors'.")}
   if examiner == none {panic("Missing required argument 'examiner'.")}
     
   if lang not in ("sv", "en") {panic("Variable 'lang' must be either 'en' or 'sv' ('sv' by default)")}
   if type(authors) != array {panic("Variable 'authors' must be of type array")}
-  if type(supervisor) != array {panic("Variable 'supervisor' must be of type array")}
+  if type(supervisors) != dictionary {panic("Variable 'supervisors' must be of type dictionary (academic: (name, email, affiliation), company: (name, email, affiliation))")}
+  if type(examiner) != dictionary {panic("Variable 'examiner' must be of type dictionary (name, email)")}
   if type(presentation-date) != datetime {panic("Variable 'presentation-date' must be of type datetime")}
 
   // Dictionary containing predetermined words and sentences in both english and swedish.
@@ -695,18 +697,17 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     let students = ""
     let supervisor-label = ""
     if authors.len() > 1 {students = "students-plural"} else {students = "student-singular"}
-    if supervisor.len() > 1 {supervisor-label = "supervisors-plural"} else {supervisor-label = "supervisor-singular"}
+    if supervisors.len() > 1 {supervisor-label = "supervisors-plural"} else {supervisor-label = "supervisor-singular"}
     box(stroke: (left: (thickness: 1.5pt, paint: lth-bronze, cap: "round")), outset: 3mm)[
       
       #language-fields.at(lang).at("department") | #language-fields.at(lang).at("faculty") | #language-fields.at(lang).at("presented") #presentation-date.display("[day padding:none] [month repr:long] [year]")
-      \ \
-      #block[
+      #block(above: 5mm, below: 5mm)[
         #strong(upper(language-fields.at(lang).at("degree-project"))) #h(spacing) #original-title #linebreak()
         #strong(upper(language-fields.at(lang).at(students))) #h(spacing) #authors.map(author => author.name).join(" & ") #linebreak()
-        #strong(upper(language-fields.at(lang).at(supervisor-label))) #h(spacing) #supervisor.join(", ") #linebreak()
-        #strong(upper(language-fields.at(lang).at("examiner"))) #h(spacing) #examiner
-        #if thesis-link != none [#parbreak() #language-fields.at(lang).at("availability") #link(thesis-link)]
+        #strong(upper(language-fields.at(lang).at(supervisor-label))) #h(spacing) #supervisors.values().map(supervisor => [#supervisor.name  (#supervisor.affiliation)]).join(", ") #linebreak()
+        #strong(upper(language-fields.at(lang).at("examiner"))) #h(spacing) #examiner.name
       ]
+      #if thesis-link != none [#parbreak() #language-fields.at(lang).at("availability") #link(thesis-link)]
     ]
   }
   
@@ -718,7 +719,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   show link: set text(fill: lth-blue)
 
   // The paper itself
-  page(paper: "a4", margin: (rest: 2.5cm))[
+  page(paper: "a4", margin: (top: 1.5cm, rest: 2.5cm))[
     #block(below: 1.5em+ 3mm, information())
     #par([#language-fields.at(lang).at("popular-science-summary") | *#authors.map(author => author.name).join(" & ")*])
     \
