@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 // Secondary text size, used in headers, footers and figure captions
 #let size-secondary = size-main * 0.8
 // Level 1 headings font size
-#let size-heading = size-main * 2
+#let size-heading = size-main * 1.8
 // Level 2 headings font size
 #let size-sub-heading = size-main * 1.4
 // Level 3 headings font size
@@ -46,15 +46,152 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let colour-main = black
 #let colour-secondary = luma(5%)
 
-// States
-#let document-state = state("doc-state", "none")
-
-// Outline state, used for the flexCaption function
-#let in-outline = state("in-outline", false)
-
 //---------------------------------------------|  STYLINGS  |---------------------------------------------//
 
-// Logic for numbering
+// Custom captions, used when wanting two different texts from the main body and the outline
+#let flexCaption(long, short) = context if state("in-outline").get() { short } else { long }
+
+// Headers
+
+// Determines whether or not the current page has a level 1 heading
+#let _has-heading() = {
+  return (query(heading.where(level: 1)).any(it => it.location().page() == here().page()))
+}
+
+// A simple header style, but with alternating body between the last level 2 heading and the level 1 heading
+#let _header-alternating() = {
+  set text(font: font-secondary, size: size-secondary)
+  let print(alignment, body) = {
+    
+    let direction = none
+    if alignment == left {direction = ltr}
+    else if alignment == right {direction = rtl}
+    
+    set align(alignment)
+    stack(dir: direction, spacing: 1em, 
+      text(counter(page).display()), 
+      [|],
+      text(body, style: "italic"))
+  }
+  context {
+    if(_has-heading()){none}
+    else{
+      let heading1 = query(selector(heading.where(level: 1)).before(here())).last(default: none)
+      let heading2 = query(
+        selector(heading.where(level: 2))
+        .after(heading1.location())
+        .before(here()))
+        .last(default: heading1)
+      if calc.even(counter(page).get().first()) {
+        if heading1.numbering == none {
+          print(left, heading1.body)
+        }
+        else {
+          print(left, [#heading1.supplement #counter(heading).display(at: heading1.location()). #heading1.body])
+        }
+      } else {
+        if heading2.numbering == none {
+          print(right, heading2.body)
+        }
+        else{
+          print(right, [#counter(heading).display(at: heading2.location()) #heading2.body])
+        }
+        
+      }
+    }
+  }
+}
+
+// Header from the original LaTeX template
+#let _header-original() = {
+  set par(spacing: 0pt)
+  set text(font: font-secondary, size: size-secondary)
+  context {
+    if(_has-heading()){none}
+    else{
+      let heading = query(selector(heading.where(level: 1)).before(here())).last()
+      if calc.even(counter(page).get().first()) {
+        box(width: 100%)[
+          #text(counter(page).display())
+          #h(1fr)
+            #text(heading.body)
+            ]
+      } else {
+        box(width: 100%)[
+            #text(heading.body)
+            #h(1fr)
+            #text(counter(page).display())
+          ]
+      }
+      v(2mm)
+      line()
+    }
+  }
+  }
+
+// Footers
+  
+// Footer for frontmatter
+#let _front-footer() = {
+  set align(center)
+  set text(font: font-main, size: size-secondary)
+  context counter(page).display()
+}
+
+// Footer for mainmatter
+#let _main-footer() = {
+  set align(center)
+  set text(font: font-secondary, size: size-secondary, style: "italic")
+  context {
+    if(_has-heading()){counter(page).display()}
+    else{none}
+  }
+}
+  
+// Headings
+
+// Heading style from the original LaTeX template
+#let _heading-original(it) = {
+  set text(
+    font: font-secondary,
+    hyphenate: false
+  )
+  set align(right)
+  set block(below: 15mm)
+  let has-numbering = (it.numbering != none)
+  if true {
+    v(size-chapter-nbr)
+    block()[
+      #stack(dir: ttb, spacing: 7.5mm,
+        [#box(width: 1fr, line()) #box([
+            #if has-numbering {
+              text(size: size-main, it.supplement)
+            }
+        #text(size: size-chapter-nbr, font: font-chapter-nbr, 
+          if it.numbering != none {counter(heading).display(it.numbering)})])],
+        text(size: size-heading, it.body),
+        line()
+      )
+    ]
+  }
+}
+
+// A simplified heading
+#let _heading-new(it) = {
+  set text(
+    font: font-main,
+    hyphenate: false
+  )
+  set align(center)
+  set par(leading: 1em)
+  set block(width: 100%, height: 3cm, below: 2cm)
+  block(align(bottom)[
+    #text(size: size-main)[#if it.numbering != none [#it.supplement #counter(heading).display(it.numbering)]] \ \
+    #text(size: size-heading, it.body)
+  ]) 
+}
+
+//---------------------------------------------|  NUMBERING  |---------------------------------------------//
 
 // Chapter numbering, single digit if level 1
 #let _chapter-numbering(.. n) = {
@@ -82,12 +219,129 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let _appendix-figure-numbering(n) = numbering("A.1", counter(heading).get().first(), n)
 #let _appendix-equation-numbering(n) = numbering("(A.1)", counter(heading).get().first(), n)
 
+// Function for resetting counters for new chapters. Called everytime a chapter is started with a show rule. If adding new kinds of figures, include a reset here
+#let _resetCounters() = {
+  counter(figure.where(kind: table)).update(0)
+  counter(figure.where(kind: raw)).update(0)
+  counter(figure.where(kind: image)).update(0)
+  counter(math.equation).update(0)
+}
 
+//---------------------------------------------|  PRINT  |---------------------------------------------//
 
-// Document state functions, to keep the main file clean. Use for example "#mainmatter()" to begin the main part of the document.
+#let _front-cover-page(title, background, authors, department) = page(
+  paper: "sis-g5",
+  margin: 5mm,
+  background: box(width: 100%-10mm, height: 100%-10mm, stroke: none)[#set image(width: 100%, height: 100%); #background],
+  foreground: place(bottom + right, dy: 17mm, dx: 13mm,image("LU-sigill.webp", width: 50%)))[
+    #place(right + top, dy: 15%, 
+      block(width: 4*20%, height: auto, inset: 5mm, outset: (right: 5mm), fill: white)[
+        #set par(leading: 2mm, justify: false)
+        #set text(font: font-secondary, size: size-secondary, fill: lth-bronze, weight: "black")
+        #set align(center)
+        #text(font: font-main, weight: "semibold", size: size-heading, title) 
+        #linebreak()
+        #set align(left)
+        #line(length: 100% + 5mm, stroke: (paint: lth-bronze))
+        #upper()[
+          #text(authors.map(author => author.name).intersperse(" & ").join()) \
+          Master's Thesis \
+          #department \
+          Faculty of Engineering | LTH | Lund University
+        ]
+      ]
+    )
+  ]
 
+#let _half-title-page(thesis-title, department, date) = page[
+  #align(center + horizon,
+      grid(row-gutter: (1fr),
+      smallcaps[Master's thesis #date.year()],
+      text(size: size-sub-sub-heading,thesis-title),
+      smallcaps[#department | Faculty of Engineering | LTH | Lund University]
+    )
+  )
+]
+
+#let _title-page(thesis-title, subtitle, authors, supervisors, examiner, degree, department, images, date) = page()[
+  #set align(center + horizon)
+  #set stack(dir: ttb)
+  #let print-authors = context {
+    align(top, grid(rows: 1, columns: authors.len(), column-gutter: 2cm,..authors.map(author => [
+          #stack(spacing: par.leading,
+            text(size: size-sub-sub-heading, weight: "regular", author.name), 
+            if "affiliation" not in author.keys(){v(par.leading)} else {author.affiliation},
+            if "email" not in author.keys(){par.leading} else {link("mailto:" + str(author.email))}
+          )
+        ])))
+  }
+  #show link: emph
+  #show title: text.with(size: 18pt, font: font-main, weight: "semibold")
+  #context{
+    block(height: 100%, 
+      grid(
+        row-gutter: (2fr, 1fr, 2fr, 1fr),
+        stroke: 0pt,
+        smallcaps[Master's thesis #date.year() #linebreak() #department],
+        grid(row-gutter: (3em),
+          title(),
+          text(subtitle, size: size-sub-sub-heading),
+        ),
+        print-authors,
+        //degree,
+        date.display("[month repr:long] [day padding:none], [year]"),
+      if images.len() != 0 {grid(column-gutter: 0.2fr, columns: (1fr,) * images.len(), ..images.map(img => image(img, fit: "contain", height: 3cm)))},
+      //smallcaps(department)
+      )
+    )
+  }
+]
+
+#let _information-page(title, subtitle, authors, company, supervisors, examiner, course-code, id, department, date) = page()[
+  #set align(bottom)
+  #set par(first-line-indent: 0pt, spacing: 1cm)
+  #show link: emph
+  #v(1fr)
+  #block(below: 2em, text(size: size-sub-sub-heading, weight: "semibold", title))
+  #text(size: size-sub-sub-heading, subtitle) 
+  #parbreak()
+  #sym.copyright #h(1em) #authors.map(author => author.name).join(" & "), #date.year()
+  #parbreak()
+  Supervisors: #supervisors.values().map(supervisor => [#supervisor.name  (#supervisor.affiliation), #link("mailto:" + supervisor.email)]).join("," + linebreak())
+  #parbreak()
+  Examiner: #examiner.name, #link("mailto:" + examiner.email) 
+  #v(1fr)
+  #if company != none [#parbreak() Master’s thesis work carried out at #company] #parbreak()
+  #department #linebreak() Faculty of Engineering, LTH #linebreak() Lund University #linebreak() Box 118, SE-221 00 Lund, Sweden #v(1fr)
+  Typeset in Typst #sys.version
+  #parbreak()
+  Printed by Tryckeriet i E-huset
+]
+
+#let _back-cover(department, department-abbreviation, link, id, date) = page(paper: "sis-g5", margin: (x: 1cm, rest: 2cm))[
+  #set text(fill: lth-bronze, font: font-secondary, size: size-secondary, weight: "semibold")
+  #place(top + right, rotate(90deg, reflow: true, text(weight: "regular", size: 6pt, [Printed by Tryckeriet i E-huset, Lund #date.display("[year]")])))
+  #align(bottom + center)[
+  #image("LU_RGB_ENG.png", height: 4cm) \  
+  Series of Master's theses \
+  #department \
+  LU/LTH-#department-abbreviation #date.display("[year]")-#id \
+  #link
+  ]]
+    
+//---------------------------------------------|  LOGIC  |---------------------------------------------//
+
+// States
+#let document-state = state("doc-state", "none")
+
+// Outline state, used for the flexCaption function
+#let _in-outline = state("in-outline", false)
+
+// Document state functions help keep the main file clean. Use for example "#show: mainmatter" to begin the main part of the document.
 // Beginning of the frontmatter
 #let frontmatter(body) = {
+  pagebreak(weak: true, to: "odd")
+  set page(numbering: "I", footer: _front-footer())
   set heading(outlined: false, bookmarked: true, numbering: none)
   document-state.update("front")
   body
@@ -95,9 +349,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 // Beginning of the mainmatter
 #let mainmatter(body) = {
-  pagebreak(to: "odd")
+  pagebreak(weak: true, to: "odd")
   set heading(numbering: _chapter-numbering, outlined: true)
-  set page(header: context state("header").get(), numbering: "1")
+  set page(header: context state("header").get(), numbering: "1", footer: _main-footer())
   counter(page).update(1)
   counter(heading).update(0)
   document-state.update("main")
@@ -106,7 +360,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 // Beginning of the backmatter (Appendix)
 #let backmatter(body) = {
-  pagebreak(to: "odd")
+  pagebreak(weak: true, to: "odd")
   set heading(numbering: _appendix-chapter-numbering)
   set figure(numbering: _appendix-figure-numbering)
   set math.equation(numbering: _appendix-equation-numbering)
@@ -114,15 +368,11 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   counter(heading).update(0)
   document-state.update("back")
   body
-  
 }
-
-// Custom captions, used when wanting two different texts from the main body and the outline
-#let flexCaption(long, short) = context if state("in-outline").get() { short } else { long }
 
 //---------------------------------------------|  THESIS  |---------------------------------------------//
 
-// Thesis template. Inspired by a lot of different thesis templates, in particular Lund, Chalmers and Uppsala
+// Thesis template
 #let thesis(
   thesis-title: none,
   authors: none,
@@ -130,10 +380,10 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   examiner: none,
   thesis-subtitle: none,
   short-title: [A shorter title],
-  affiliations: (),
+  affiliation: none,
   degree: none,
   course-code: [EITM01],
-  front-images: ("LundUniversity_C_BLACK.png",),
+  affiliations-logo: (),
   description: none,
   keywords: (),
   print: false,
@@ -149,181 +399,59 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   let department-short = "EIT"
   let department-link = link("http://www.eit.lth.se")
 
-  // Headers
-  // Determines whether or not the current page has a level 1 heading
-  let _has-heading() = {
-    return (query(heading.where(level: 1)).any(it => it.location().page() == here().page()))
-  }
-  // Header from the original LaTeX template
-  let header-original() = {
-    set par(spacing: 0pt)
-    set text(font: font-secondary, size: size-secondary)
-    context {
-      if(_has-heading()){none}
-      else{
-        let heading = query(selector(heading.where(level: 1)).before(here())).last()
-        if calc.even(counter(page).get().first()) {
-          box(width: 100%)[
-            #text(counter(page).display())
-            #h(1fr)
-              #text(heading.body)
-              ]
-        } else {
-          box(width: 100%)[
-              #text(heading.body)
-              #h(1fr)
-              #text(counter(page).display())
-            ]
-        }
-        v(2mm)
-        line()
-      }
-    }
+// Assertions for required arguments
+  assert(thesis-title != none, message: "Missing required argument 'thesis-title'.")
+  assert(authors != none, message: "Missing required argument 'authors'.")
+  assert(supervisors != none, message: "Missing required argument 'supervisors'.")
+  assert(examiner != none, message: "Missing required argument 'examiner'.")
+
+  // Assertions for variable types
+  assert(type(authors) == array, 
+    message: "Variable 'authors' must be of type array ((name, email),)."
+  )
+  assert(type(supervisors) == dictionary, 
+    message: "Variable 'supervisors' must be of type dictionary (academic: (name, email, affiliation), company: (name, email, affiliation))."
+  )
+  assert(type(examiner) == dictionary,  
+    message: "Variable 'examiner' must be of type dictionary (name, email)."
+  )
+  assert(type(affiliations-logo) == array, 
+    message: "Variable 'affiliations-logo' must be of type array."
+  )
+  assert(type(keywords) == array, 
+    message: "Variable 'keywords' must be of type array."
+  )
+  assert(type(print) == bool, 
+    message: "Variable 'print' must be of type boolean."
+  )
+  assert(type(date) == datetime, 
+    message: "Variable 'date' must be of type datetime."
+  )
+  assert(type(front-cover-background) == content, 
+    message: "Variable 'front-cover-background' must be of type content."
+  )
+
+  // Assertions for logic and specific values
+  if print == true {
+    assert(report-id != none, message: "Thesis must have a report-id to be printed!")
   }
   
-  // A simple header style, but with alternating body between the last level 2 heading and the level 1 heading
-  let header-alternating() = {
-    set text(font: font-secondary, size: size-secondary)
-    let print(alignment, body) = {
-      
-      let direction = none
-      if alignment == left {direction = ltr}
-      else if alignment == right {direction = rtl}
-      
-      set align(alignment)
-      stack(dir: direction, spacing: 1em, 
-        text(counter(page).display()), 
-        [|],
-        text(body, style: "italic"))
-    }
-    context {
-      if(_has-heading()){none}
-      else{
-        let heading1 = query(selector(heading.where(level: 1)).before(here())).last(default: none)
-        let heading2 = query(
-          selector(heading.where(level: 2))
-          .after(heading1.location())
-          .before(here()))
-          .last(default: heading1)
-        if calc.even(counter(page).get().first()) {
-          if heading1.numbering == none {
-            print(left, heading1.body)
-          }
-          else {
-            print(left, [#heading1.supplement #counter(heading).display(at: heading1.location()) #heading1.body])
-          }
-        } else {
-          if heading2.numbering == none {
-            print(right, heading2.body)
-          }
-          else{
-            print(right, [#counter(heading).display(at: heading2.location()) #heading2.body])
-          }
-          
-        }
-      }
-    }
-  }
-
-  // Footer for frontmatter
-  let _front-footer() = {
-    set align(center)
-    set text(font: font-secondary, size: size-secondary)
-    context counter(page).display()
-  }
-  
-  // Footer for mainmatter
-  let _main-footer() = {
-    set align(center)
-    set text(font: font-secondary, size: size-secondary, style: "italic")
-    context {
-      if(_has-heading()){counter(page).display()}
-      else{none}
-    }
-  }
-
-  // Heading stylings
-  // Heading style from the original LaTeX template
-  let heading-original(it) = {
-    set text(
-      font: font-secondary,
-      weight: "regular",
-      hyphenate: false
-    )
-    set align(right)
-    set block(below: 15mm)
-    let has-numbering = (it.numbering != none)
-    if true {
-      v(size-chapter-nbr)
-      block()[
-        #stack(dir: ttb, spacing: 7.5mm,
-          [#box(width: 1fr, line()) #box([
-              #if has-numbering {
-                text(size: size-main, it.supplement)
-              }
-          #text(size: size-chapter-nbr, font: font-chapter-nbr, 
-            if it.numbering != none {counter(heading).display(it.numbering)})])],
-          text(size: size-heading, it.body),
-          line()
-        )
-      ]
-    }
-  }
-
-  // A simplified heading
-  let heading-new(it) = {
-    set text(
-      font: font-main,
-      hyphenate: false
-    )
-    set align(center)
-    set par(leading: 1em)
-    set block(width: 100%, height: 3cm, below: 2cm)
-    block(align(bottom)[
-      #text(size: size-main)[#if it.numbering != none [#it.supplement #counter(heading).display(it.numbering)]] \ \
-      #text(size: size-heading, it.body)
-    ]) 
-  }
-
-  // Function for resetting counters for new chapters. Called everytime a chapter is started with a show rule. If adding new kinds of figures, include a reset here
-  let resetCounters() = {
-    counter(figure.where(kind: table)).update(0)
-    counter(figure.where(kind: raw)).update(0)
-    counter(figure.where(kind: image)).update(0)
-    counter(math.equation).update(0)
-  }
-
-  // Panics
-  if thesis-title == none {panic("Missing required argument 'thesis-title'")}
-  if authors == none {panic("Missing required argument 'authors'")}
-  if supervisors == none {panic("Missing required argument 'supervisors'")}
-  if examiner == none {panic("Missing required argument 'examiner'")}
-  
-  if type(authors) != array {panic("Variable 'authors' must be of type array ((name, email),).")}
-  if type(supervisors) != dictionary {panic("Variable 'supervisors' must be of type dictionary (academic: (name, email, affiliation), company: (name, email, affiliation))")}
-  if type(examiner) != dictionary {panic("Variable 'examiner' must be of type dictionary (name, email)")}
-  if type(affiliations) != array {panic("Variable 'affiliations' must be of type array.")}
-  if type(front-images) != array {panic("Variable 'front-images' must be of type array.")}
-  if type(keywords) != array {panic("Variable 'keywords' must be of type array")}
-  if type(print) != bool {panic("Variable 'print' must be of type boolean.")}
-  if type(date) != datetime {panic("Variable 'date' must be of type datetime.")}
-  if type(front-cover-background) != content {panic("Variable 'front-cover-background' must be of type content")}
-  if report-id == none and print == true {panic("Thesis must have a report-id to be printed!")}
-
-  if header-style not in("original", "novel"){panic("Variable header-style must be either original (default) or novel.")}
-  if heading-style not in ("original", "novel"){panic("Variable heading-style must be either original (defualt) or novel.")}
+  assert(header-style in ("original", "novel"), 
+    message: "Variable 'header-style' must be either 'original' (default) or 'novel'."
+  )
+  assert(heading-style in ("original", "novel"), 
+    message: "Variable 'heading-style' must be either 'original' (default) or 'novel'.")
 
   //Selecting which header is used
-  if header-style == "original" {state("header").update(header-original())}
-  else if header-style == "novel" {state("header").update(header-alternating())}
+  if header-style == "original" {state("header").update(_header-original())} else if header-style == "novel" {state("header").update(_header-alternating())}
 
   // Selecting which heading is used
   if heading-style == "original" {
-    state("heading").update(_ => heading-original)
+    state("heading").update(_ => _heading-original)
     
   }
-  else if heading-style == "novel" {
-    state("heading").update(_ => heading-new)
+  if heading-style == "novel" {
+    state("heading").update(_ => _heading-new)
   }
   
   // Set rules
@@ -346,49 +474,38 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     number-align: center + bottom,
     footer-descent: 0% + 7.5mm,
     header-ascent: 0% + 7.5mm,
-    footer: context {
-      let doc-state = document-state.get()
-      if doc-state == "front" {_front-footer()}
-      else if doc-state in ("main", "back") {_main-footer()}
-      else {none}},
-    header: context {
-      let doc-state = document-state.get()
-      if doc-state == "front" {none}
-      else if doc-state == "main" {state("header").get()}
-    },
-    numbering: (..num) => context {
-      let doc-state = document-state.get()
-      if doc-state == "front" {numbering("i", ..num)}
-      else if doc-state == "main" {numbering("1", ..num)}
-      else if doc-state == "back" {numbering("1", ..num)}
-      else {numbering("1", ..num)}
-    },
+    binding: left
   )
 
   // Calculated necessary margins for the document depending if print == true or false. sis-g5 has dimensions 169x239mm
-  let (g5_width, g5_height) = (169mm, 239mm)
-  let (a4_width, a4_height) = (210mm, 297mm)
-  let (a4_offset_width, a4_offset_height) = ((a4_width - g5_width) / 2, (a4_height - g5_height) / 2)
+  let (g5-width, g5-height) = (169mm, 239mm)
+  let (a4-width, a4-height) = (210mm, 297mm)
+  let (a4-offset-width, a4-offset-height) = ((a4-width - g5-width) / 2, (a4-height - g5-height) / 2)
   
   let (body_width, body_height) = (125mm, 200mm)
-  let inside = 29.5mm
-  let outside = g5_width - inside - body_width
-  let vertical =  (g5_height - body_height) / 2
+  let inside = 1in
+  let outside = g5-width - inside - body_width
+  let vertical =  (g5-height - body_height) / 2
 
   // Sets only if print == false, adds a G5 box to the pages and some information on top
   set page(
     paper: "a4",
     margin: (
-      inside: inside + a4_offset_width,
-      outside: outside + a4_offset_width,
-      rest: vertical + a4_offset_height,
+      inside: inside + a4-offset-width,
+      outside: outside + a4-offset-width,
+      rest: vertical + a4-offset-height,
       ),
-    binding: left,
     background: [
       #set text(size: 12pt)
-      #place(center, dy: 22.5mm)[
-      #emph(short-title) --- #date.display("[year]/[month padding:none]/[day padding:none]") --- page #context(counter(page).display()) --- #sym.hash#context(here().page())]
-      #align(center + horizon, rect(stroke: 0.2mm, width: g5_width, height: g5_height))
+      #place(center, dy: 22.5mm, stack(
+        dir: ltr,
+        spacing: 1cm,
+        emph(short-title),
+        date.display("[year]/[month padding:none]/[day padding:none]"),
+        [page #context(counter(page).display())],
+        [#sym.hash #context(here().page())]
+      ))
+      #align(center + horizon, rect(stroke: 0.2mm, width: g5-width, height: g5-height))
     ]
   ) if print == false
 
@@ -399,7 +516,6 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       outside: outside,
       rest: vertical
     ),
-    binding: left
   ) if print == true
   
   // Text
@@ -496,15 +612,15 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   
   //Outline for figures, equations, etc.
   show outline: it => {
-    in-outline.update(true)
+    _in-outline.update(true)
     it
-    in-outline.update(false)
+    _in-outline.update(false)
   }
-  show outline.entry: it => outline-entry(it)
+  show outline.entry: outline-entry
   
   // Headings
   set heading(supplement: [Section])
-  show heading: set text(font: font-main, weight: "medium")
+  show heading: set text(weight: "semibold")
   show heading: set par(leading: 1em)
   show heading.where(level: 1): set heading(supplement: [Chapter])
   show heading.where(level: 2): set block(above: 2em, below: 1em)
@@ -513,11 +629,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   show heading.where(level: 3): set text(size: size-sub-sub-heading)
   
   // Figures out which heading to place depending on the state of the document
-  show heading.where(level: 1): it => {
-    pagebreak(weak: true, to: "odd")
-    resetCounters()
-    state("heading").get()(it)
-  }
+  show heading.where(level: 1): it => context{ pagebreak(weak: true, to: "odd") + _resetCounters() + state("heading").get()(it)}
   
   // Bibliography
   set bibliography(style: "ieee")
@@ -526,104 +638,31 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   set quote(block: true)
   show quote: set block(inset: 2.5mm)
 
-  // Front cover page, if print is true
-  if print == true {page(
-    paper: "sis-g5",
-    margin: 5mm,
-    background: box(width: 100%-10mm, height: 100%-10mm, stroke: none)[#front-cover-background],
-    foreground: place(bottom + right, dy: 17mm, dx: 13mm,image("LU-sigill.webp", width: 50%)))[
-      #place(right + top, dy: 15%, 
-        block(width: 4*20%, height: auto, inset: 5mm, outset: (right: 5mm), fill: white)[
-          #set par(leading: 2mm)
-          #set text(font: font-secondary, size: size-secondary, fill: lth-bronze, weight: "black")
-          #set align(center)
-          #text(font: font-main, weight: "semibold", size: size-heading, thesis-title) 
-          #linebreak()
-          #set align(left)
-          #line(length: 100% + 5mm, stroke: (paint: lth-bronze))
-          #upper()[
-            #text(authors.map(author => author.name).intersperse(" & ").join()) \
-            Master's Thesis \
-            #department \
-            Faculty of Engineering | LTH | Lund University
-          ]
-        ]
-      )
-  ]
-  pagebreak(to: "odd")
-}
-
-  // Title page
-  page()[
-    #set align(center + horizon)
-    #set stack(dir: ttb)
-    #let print-authors = context {
-      align(top, grid(rows: 1, columns: authors.len(), column-gutter: 2cm,..authors.map(author => [
-            #stack(spacing: par.leading, 
-              text(size: size-sub-sub-heading, weight: "regular", author.name), 
-              if "affiliation" not in author.keys(){v(par.leading)} else {author.affiliation},
-              if "email" not in author.keys(){par.leading} else {link("mailto:" + str(author.email))}
-            )
-          ])))
-    }
-    #show link: emph
-    #show title: text.with(size: size-heading, font: font-main, weight: "semibold")
-    #context{
-      block(height: 90%, 
-        grid(
-          columns: 1,
-          row-gutter: (1fr, 1fr, 0.5fr),
-          
-          [#smallcaps(text("Master's thesis"/* + " " + str(date.year())*/, size: size-main)) /*#if (degree == none) {[#parbreak() Submitted for the degree of #linebreak() _ #degree _]}*/],
-          
-          grid(row-gutter: (3em), 
-            title(),
-            text(thesis-subtitle, size: size-sub-sub-heading),
-            print-authors,
-          ),
-
-          date.display("[month repr:long] [day padding:none], [year]"),
-  
-          //if affiliations.len() != 0 {[Thesis work conducted at #affiliations.join(" & ")]},
-          
-          if front-images.len() != 0 {grid(column-gutter: 0.2fr, columns: (1fr,) * front-images.len(), ..front-images.map(img => image(img, fit: "contain", height: 3cm)))},
-          
-          smallcaps([#department \ Faculty of Engineering | LTH | Lund University]),
-        )
-      )
-    }
-  ]
-  
-  // Print page
-  page()[
-    #set align(bottom)
-    #set par(first-line-indent: 0pt)
-    #show link: emph
-    #v(0.5fr)
-    #thesis-title \ #thesis-subtitle \ #authors.map(author => author.name).join(" & ") \ \ 
-    #supervisors.values().map(supervisor => [#supervisor.name  (#supervisor.affiliation), #link("mailto:" + supervisor.email)]).join(linebreak()) \
-    Examiner: #examiner.name, #link("mailto:" + examiner.email) /* \ #affiliations.join([, ])*/ \ \ #course-code \ #report-id \ \ #department \ Faculty of Engineering, LTH, Lund University \ SE-221 00 Lund, Sweden
-    #v(1fr)
-    Typeset in Typst #sys.version \ \ #sym.copyright /*#authors.map(author => author.name).join(" & "), */ #authors.map(author => author.name).join(" & "), #date.year() \ Printed by Tryckeriet i E-huset \ Lund, Sweden
-  ]
-  
   // Beginning of document
+  
+  // Front cover page, if print is true
+  if print == true {_front-cover-page(thesis-title, front-cover-background, authors, department)}
+
+  // Blank page
+  // pagebreak(to: "odd")
+  page(align(bottom + left, text(style: "italic", "Blank page — remove in final print.")))
+
+  // Half title
+  // _half-title-page(thesis-title, department, date)
+  
+  // Title page
+  pagebreak(to: "odd")
+  _title-page(thesis-title, thesis-subtitle, authors, supervisors, examiner, affiliation, department, ("LundUniversity_C_BLACK.png",) + affiliations-logo, date)
+  
+  // Information of thesis
+  pagebreak(to: "odd")
+  _information-page(thesis-title, thesis-subtitle, authors, affiliation, supervisors, examiner, course-code, report-id, department, date)
+
   counter(page).update(1)
   body
 
   // Backcover, if print is true
-  if print == true {
-    page(paper: "sis-g5", margin: (x: 1cm, rest: 2cm))[
-      #set text(fill: lth-bronze, font: font-secondary, size: size-secondary, weight: "semibold")
-
-      #place(top + right, rotate(90deg, reflow: true, text(weight: "regular", size: 6pt, [Printed by Tryckeriet i E-huset, Lund #date.display("[year]")])))
-      #align(bottom + center)[
-      #image("LU_RGB_ENG.png", height: 4cm) \  
-      Series of Master's theses \
-      #department \
-      LU/LTH-#department-short #date.display("[year]")-#report-id \
-      #department-link
-    ]]}
+  if print == true {_back-cover(department, department-short, department-link, report-id, date)}
 }
 
 //---------------------------------------------|  POPULAR SCIENCE SUMMARY |---------------------------------------------//
@@ -642,18 +681,30 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   body
 ) = {
   
-  // Panics
-  if summary-title == none {panic("Missing required argument 'summary-title'.")}
-  if original-title == none {panic("Missing required argument 'original-title'.")}
-  if authors == none {panic("Missing required argument 'authors'.")}
-  if supervisors == none {panic("Missing required argument 'superivsors'.")}
-  if examiner == none {panic("Missing required argument 'examiner'.")}
+  // Assertions for required arguments
+  assert(summary-title != none, message: "Missing required argument 'summary-title'.")
+  assert(original-title != none, message: "Missing required argument 'original-title'.")
+  assert(authors != none, message: "Missing required argument 'authors'.")
+  assert(supervisors != none, message: "Missing required argument 'supervisors'.")
+  assert(examiner != none, message: "Missing required argument 'examiner'.")
     
-  if lang not in ("sv", "en") {panic("Variable 'lang' must be either 'en' or 'sv' ('sv' by default)")}
-  if type(authors) != array {panic("Variable 'authors' must be of type array")}
-  if type(supervisors) != dictionary {panic("Variable 'supervisors' must be of type dictionary (academic: (name, email, affiliation), company: (name, email, affiliation))")}
-  if type(examiner) != dictionary {panic("Variable 'examiner' must be of type dictionary (name, email)")}
-  if type(presentation-date) != datetime {panic("Variable 'presentation-date' must be of type datetime")}
+  // Assertions for logic and specific values
+  assert(lang in ("sv", "en"), 
+    message: "Variable 'lang' must be either 'en' or 'sv' ('sv' by default)."
+  )
+
+  // Assertions for variable types
+  assert(type(authors) == array, 
+    message: "Variable 'authors' must be of type array."
+  )
+  assert(type(supervisors) == dictionary, 
+    message: "Variable 'supervisors' must be of type dictionary (academic: (name, email, affiliation), company: (name, email, affiliation))."
+  )
+  assert(type(examiner) == dictionary, 
+    message: "Variable 'examiner' must be of type dictionary (name, email)."
+  )
+  assert(type(presentation-date) == datetime, 
+    message: "Variable 'presentation-date' must be of type datetime.")
 
   // Dictionary containing predetermined words and sentences in both english and swedish.
   let language-fields = (
@@ -693,14 +744,21 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     set align(top)
     set par(spacing: 1em)
     set text(size: size-secondary)
+    
     let spacing = 0.5em
     let students = ""
     let supervisor-label = ""
+    
     if authors.len() > 1 {students = "students-plural"} else {students = "student-singular"}
     if supervisors.len() > 1 {supervisor-label = "supervisors-plural"} else {supervisor-label = "supervisor-singular"}
     box(stroke: (left: (thickness: 1.5pt, paint: lth-bronze, cap: "round")), outset: 3mm)[
       
-      #language-fields.at(lang).at("department") | #language-fields.at(lang).at("faculty") | #language-fields.at(lang).at("presented") #presentation-date.display("[day padding:none] [month repr:long] [year]")
+      #language-fields.at(lang).at("department") | #language-fields.at(lang).at("faculty") | #language-fields.at(lang).at("presented") 
+      #if lang == "sv" {
+        lower(presentation-date.display("[day padding:none] [month repr:long] [year]"))
+      } else {
+        presentation-date.display("[day padding:none] [month repr:long] [year]")
+      }
       #block(above: 5mm, below: 5mm)[
         #strong(upper(language-fields.at(lang).at("degree-project"))) #h(spacing) #original-title #linebreak()
         #strong(upper(language-fields.at(lang).at(students))) #h(spacing) #authors.map(author => author.name).join(" & ") #linebreak()
@@ -716,6 +774,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   set par(spacing: 0.5em)
   set figure(supplement: language-fields.at(lang).at("figure-supplement"), numbering: "1")
   set document(author: authors.map(author => author.name), date: presentation-date, title: summary-title)
+  
   show link: set text(fill: lth-blue)
 
   // The paper itself
@@ -723,9 +782,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     #block(below: 1.5em+ 3mm, information())
     #par([#language-fields.at(lang).at("popular-science-summary") | *#authors.map(author => author.name).join(" & ")*])
     \
-    #par(text(size: size-heading, font: font-main, weight:  "semibold",  fill: lth-bronze, summary-title)) \
+    #par(strong(text(size: size-heading, font: font-main,  fill: lth-bronze, summary-title))) \
     #set par(justify: true, first-line-indent: 1em)
-    #par(strong(text(lead-paragraph, font: font-main, size: size-main*1.1)))
+    #par(strong(text(lead-paragraph, font: font-main, size: size-sub-sub-heading)))
     #v(1em)
     #columns(2, gutter: 5%, body)
   ]
@@ -746,20 +805,30 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   body
 ) = {
 
-  // Panics
-  if tentative-title == none {panic("Missing required argument 'tentative-title'.")}
-  if authors == none {panic("Missing required argument 'authors'.")}
-  if start-date == none {panic("Missing required argument 'start-date'.")}
-  if end-date == none {panic("Missing required argument 'end-date'.")}
-  if course-code == none {panic("Missing required argument 'course-code'.")}
-  if academic-supervisor == none {panic("Missing required argument 'academic-supervisor'.")}
-  if examiner == none {panic("Missing required argument 'examiner'.")}
+  // Assertions for required arguments
+  assert(tentative-title != none, message: "Missing required argument 'tentative-title'.")
+  assert(authors != none, message: "Missing required argument 'authors'.")
+  assert(start-date != none, message: "Missing required argument 'start-date'.")
+  assert(end-date != none, message: "Missing required argument 'end-date'.")
+  assert(course-code != none, message: "Missing required argument 'course-code'.")
+  assert(academic-supervisor != none, message: "Missing required argument 'academic-supervisor'.")
+  assert(examiner != none, message: "Missing required argument 'examiner'.")
 
-  if type(authors) != array {panic("Variable 'authors' must be of type array.")}
-  if type(start-date) != datetime {panic("Variable 'start-date' must be of type datetime.")}
-  if type(end-date) != datetime {panic("Variable 'end-date' must be of type datetime.")}
+  // Assertions for logic and specific values
+  assert(lang in ("sv", "en"), 
+    message: "Variable 'lang' must be either 'sv' or 'en' ('en' by default)."
+  )
 
-  if lang not in ("sv", "en") {panic("Variable lang must be either 'sv' or 'en' ('en' by default).")}
+  // Assertions for variable types
+  assert(type(authors) == array, 
+    message: "Variable 'authors' must be of type array."
+  )
+  assert(type(start-date) == datetime, 
+    message: "Variable 'start-date' must be of type datetime."
+  )
+  assert(type(end-date) == datetime, 
+    message: "Variable 'end-date' must be of type datetime."
+  )
 
   // Dictionary containing predetermined words and sentences in both english and swedish.
   let language-fields = (
@@ -884,11 +953,15 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   body
 ) = {
   
-  //Panics
-  if academic-supervisor == none {panic("Missing required argument 'academic-supervisor'.")}
-  if examiner == none {panic("Missing required argument 'examiner'.")}
+  // Assertions for required arguments
+  assert(academic-supervisor != none, 
+    message: "Missing required argument 'academic-supervisor'.")
+  assert(examiner != none,
+    message: "Missing required argument 'examiner'.")
 
-  if lang not in ("sv", "en") {panic("Variable lang must be either 'sv' or 'en' ('en' by default).")}
+  // Assertions for logic and specific values
+  assert(lang in ("sv", "en"),
+    message: "Variable lang must be either 'sv' or 'en' ('en' by default).")
 
   let language-fields = (
     sv : (
