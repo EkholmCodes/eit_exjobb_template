@@ -10,7 +10,23 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+//---------------------------------------------|  GLOBAL VARIABLES  |---------------------------------------------//
+
 #let template_version = version(1) // Change when changes are made to the template, used to distinguish from original
+
+#let debug = false
+
+#let degree-level-en = "Master"
+#let degree-level-sv = "Avancerad nivå"
+
+#assert(degree-level-en in ("Master", "Bachelor"), message: "Variable 'degree-level-en' must be either 'Master' or 'Bachelor'")
+#assert(degree-level-sv in ("Avancerad nivå", "Grundnivå"), message: "Variable 'degree-level-sv' must be either 'Avancerad nivå' or 'Grundnivå'")
+
+#let department-en = "Department of Electrical and Information Technology"
+#let department-short-en = "EIT"
+#let department-sv = "Insitutionen för elektro- och informationsteknik"
+#let department-short-sv = "EIT"
+#let department-link = link("http://www.eit.lth.se")
 
 //---------------------------------------------|  TEXT AND COLOR DEFINITIONS  |---------------------------------------------//
 
@@ -39,12 +55,12 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 #let font-math = "Libertinus Math"
 
 // Colours, taken from the official graphic profile of Lund University
-#let lth-bronze = rgb(156, 97, 20) //cmyk(9%, 57%, 100%, 41%)
-#let lth-blue = rgb(0, 0, 128) //cmyk(100%, 85%, 5%, 22%)
-#let lth-grey = rgb(191, 184, 175)//cmyk(0%, 0%, 15%, 85%)
-#let lth-light_brown = rgb(214, 210, 196) //cmyk(3%, 4%, 14%, 8%)
+#let lu-bronze = color.spot("PANTONE 1395 U", rgb(156, 97, 20)).tint(100%) //cmyk(9%, 57%, 100%, 41%)
+#let lu-blue = color.spot("PANTONE 280 U", rgb(0, 0, 128)).tint(100%) //cmyk(100%, 85%, 5%, 22%)
+#let lu-grey = color.spot("PANTONE BLACK 7 C", rgb(77, 76, 68)).tint(100%) //cmyk(0%, 0%, 15%, 85%)
+#let lu-light-brown = color.spot("PANTONE 7527 C", rgb(214, 210, 196)).tint(100%) //cmyk(3%, 4%, 14%, 8%)
 #let colour-main = black
-#let colour-secondary = luma(5%)
+#let colour-secondary = lu-grey
 
 //---------------------------------------------|  STYLINGS  |---------------------------------------------//
 
@@ -96,7 +112,6 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
         else{
           print(right, [#counter(heading).display(at: heading2.location()) #heading2.body])
         }
-        
       }
     }
   }
@@ -127,7 +142,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       line()
     }
   }
-  }
+}
 
 // Footers
   
@@ -141,7 +156,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 // Footer for mainmatter
 #let _main-footer() = {
   set align(center)
-  set text(font: font-secondary, size: size-secondary, style: "italic")
+  set text(font: font-secondary, size: size-secondary)
   context {
     if(_has-heading()){counter(page).display()}
     else{none}
@@ -157,18 +172,20 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     hyphenate: false
   )
   set align(right)
-  set block(below: 15mm)
   let has-numbering = (it.numbering != none)
   if true {
     v(size-chapter-nbr)
     block()[
       #stack(dir: ttb, spacing: 7.5mm,
-        [#box(width: 1fr, line()) #box([
+        [
+          #box(width: 1fr, line())
+          #box([
             #if has-numbering {
               text(size: size-main, it.supplement)
             }
-        #text(size: size-chapter-nbr, font: font-chapter-nbr, 
-          if it.numbering != none {counter(heading).display(it.numbering)})])],
+            #text(size: size-chapter-nbr,weight: "regular", font: font-chapter-nbr, if has-numbering {counter(heading).display(it.numbering)})
+          ])
+        ],
         text(size: size-heading, it.body),
         line()
       )
@@ -182,13 +199,20 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     font: font-main,
     hyphenate: false
   )
-  set align(center)
   set par(leading: 1em)
-  set block(width: 100%, height: 3cm, below: 2cm)
-  block(align(bottom)[
-    #text(size: size-main)[#if it.numbering != none [#it.supplement #counter(heading).display(it.numbering)]] \ \
-    #text(size: size-heading, it.body)
-  ]) 
+
+  block(
+    width: 100%,
+    align(center + horizon, 
+      grid(
+        rows: (1cm, auto, auto),
+        row-gutter: 2em,
+        if it.numbering != none [#text(size: size-main)[#it.supplement #counter(heading).display(it.numbering)]],
+        text(size: size-heading, it.body),
+        // line(length: 10%)
+      )
+    )
+  )
 }
 
 //---------------------------------------------|  NUMBERING  |---------------------------------------------//
@@ -229,105 +253,200 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 //---------------------------------------------|  PRINT  |---------------------------------------------//
 
-#let _front-cover-page(title, background, authors, department) = page(
+#let _front-cover-page(
+  title,
+  background,
+  authors,
+  degree,
+  department,
+) = page(
   paper: "sis-g5",
   margin: 5mm,
-  background: box(width: 100%-10mm, height: 100%-10mm, stroke: none)[#set image(width: 100%, height: 100%); #background],
-  foreground: place(bottom + right, dy: 17mm, dx: 13mm,image("LU-sigill.webp", width: 50%)))[
-    #place(right + top, dy: 15%, 
-      block(width: 4*20%, height: auto, inset: 5mm, outset: (right: 5mm), fill: white)[
-        #set par(leading: 2mm, justify: false)
-        #set text(font: font-secondary, size: size-secondary, fill: lth-bronze, weight: "black")
-        #set align(center)
-        #text(font: font-main, weight: "semibold", size: size-heading, title) 
-        #linebreak()
-        #set align(left)
-        #line(length: 100% + 5mm, stroke: (paint: lth-bronze))
-        #upper()[
-          #text(authors.map(author => author.name).intersperse(" & ").join()) \
-          Master's Thesis \
-          #department \
-          Faculty of Engineering | LTH | Lund University
-        ]
-      ]
+  background: box(
+    width: 100%-10mm,
+    height: 100%-10mm,
+    stroke: none
+  )[
+    #set image(width: 100%, height: 100%)
+    #background
+  ],
+  foreground: place(
+    bottom + right,
+    dy: 17mm, dx: 13mm,
+    image("LU-sigill.webp", width: 50%))
+  )[
+    #set par(justify: true, leading: 0.7em)
+    #set text(font: font-secondary, size: size-secondary, fill: lu-bronze, weight: "bold", hyphenate: false)
+    #place(
+      right + top,
+      dy: (1/7)*100%,
+      block(
+        width: 100%*(4/5),
+        height: auto,
+        inset: 5mm,
+        outset: (right: 5mm),
+        fill: white,
+        align(
+          left,
+          grid(
+            rows: 3,
+            gutter: 1.5em,
+            text(font: font-main, weight: "semibold", size: size-heading, title),
+            line(length: 100%, stroke: (paint: lu-bronze)),
+            upper()[
+              #text(authors.map(author => author.name).join(", ", last: " & ")) \
+              #degree's Thesis \
+              #department \
+              Faculty of Engineering | LTH | Lund University
+            ]
+          )
+        )   
+      )
     )
+    #if debug {place(center + horizon, grid(rows: 7*(1fr,), columns: 5*(1fr,), stroke: 1pt))} // Used for debugging)
   ]
 
-#let _half-title-page(thesis-title, department, date) = page[
-  #align(center + horizon,
-      grid(row-gutter: (1fr),
-      smallcaps[Master's thesis #date.year()],
-      text(size: size-sub-sub-heading,thesis-title),
-      smallcaps[#department | Faculty of Engineering | LTH | Lund University]
-    )
-  )
-]
-
-#let _title-page(thesis-title, subtitle, authors, supervisors, examiner, degree, department, images, date) = page()[
-  #set align(center + horizon)
-  #set stack(dir: ttb)
+#let _title-page(
+  thesis-title,
+  subtitle,
+  authors,
+  supervisors,
+  examiner,
+  degree,
+  department,
+  images,
+  date
+) = page()[
   #let print-authors = context {
     align(top, grid(rows: 1, columns: authors.len(), column-gutter: 2cm,..authors.map(author => [
           #stack(spacing: par.leading,
-            text(size: size-sub-sub-heading, weight: "regular", author.name), 
+            text(weight: "regular", size: size-sub-sub-heading, {
+              author.name
+            }), 
             if "affiliation" not in author.keys(){v(par.leading)} else {author.affiliation},
             if "email" not in author.keys(){par.leading} else {link("mailto:" + str(author.email))}
           )
         ])))
   }
+  #set align(center + horizon)
+  #set text(hyphenate: false)
+  #set stack(dir: ttb)
+  #set par(justify: false, leading: 1em)
+  #set line(length: 60%)
   #show link: emph
-  #show title: text.with(size: 18pt, font: font-main, weight: "semibold")
+  #show title: set text(size: size-heading, font: font-main, weight: "semibold")
   #context{
     block(height: 100%, 
       grid(
-        row-gutter: (2fr, 1fr, 2fr, 1fr),
+        row-gutter: (1.25fr, 1.25fr, 1fr, 1fr),
         stroke: 0pt,
-        smallcaps[Master's thesis #date.year() #linebreak() #department],
-        grid(row-gutter: (3em),
+        smallcaps[#degree's thesis #date.year() #linebreak() #department],
+        grid(row-gutter: 3em,
+          line(),
           title(),
-          text(subtitle, size: size-sub-sub-heading),
+          line(),
+          ..if subtitle != none {(text(subtitle, size: size-sub-heading),)},
         ),
         print-authors,
-        //degree,
-        date.display("[month repr:long] [day padding:none], [year]"),
-      if images.len() != 0 {grid(column-gutter: 0.2fr, columns: (1fr,) * images.len(), ..images.map(img => image(img, fit: "contain", height: 3cm)))},
-      //smallcaps(department)
+        date.display("[month repr:long] [day padding:none], [year]"), 
+        {
+          let images-filtered = images.filter(img => type(img) == type(""))
+          
+          if images-filtered.len() != 0 {
+            grid(column-gutter: 0.2fr,
+              columns: (1fr,) * images-filtered.len(),
+              ..images-filtered.map(img => image(img, fit: "contain", height: 3cm)))
+          }
+        },
       )
     )
   }
 ]
 
-#let _information-page(title, subtitle, authors, company, supervisors, examiner, course-code, id, department, date) = page()[
-  #set align(bottom)
-  #set par(first-line-indent: 0pt, spacing: 1cm)
-  #show link: emph
-  #v(1fr)
-  #block(below: 2em, text(size: size-sub-sub-heading, weight: "semibold", title))
-  #text(size: size-sub-sub-heading, subtitle) 
-  #parbreak()
-  #sym.copyright #h(1em) #authors.map(author => author.name).join(" & "), #date.year()
-  #parbreak()
-  Supervisors: #supervisors.values().map(supervisor => [#supervisor.name  (#supervisor.affiliation), #link("mailto:" + supervisor.email)]).join("," + linebreak())
-  #parbreak()
-  Examiner: #examiner.name, #link("mailto:" + examiner.email) 
-  #v(1fr)
-  #if company != none [#parbreak() Master’s thesis work carried out at #company] #parbreak()
-  #department #linebreak() Faculty of Engineering, LTH #linebreak() Lund University #linebreak() Box 118, SE-221 00 Lund, Sweden #v(1fr)
-  Typeset in Typst #sys.version
-  #parbreak()
-  Printed by Tryckeriet i E-huset
+#let _information-page(
+  title,
+  title-sv,
+  subtitle,
+  subtitle-sv,
+  authors,
+  company,
+  supervisors,
+  examiner,
+  course-code,
+  issn,
+  department,
+  date
+) = page()[
+  // #set align(top)
+  #set par(first-line-indent: 0em, leading: 0.8em)
+  #set block(below: 1fr)
+  #v(4cm)
+  #block()[
+    #text(size: size-sub-heading, weight: "semibold", title) \ \
+    #text(size: size-sub-sub-heading, subtitle)
+  ]
+
+  #block()[
+    #sym.copyright #h(1em) #authors.map(author => author.name).join(", ", last: " & "), #date.year()
+  ]
+
+  #block(grid(
+    columns: 2,
+    gutter: 1.5em,
+    ..if title-sv != none {
+      (
+        [Swedish title],
+        [#title-sv#if subtitle-sv != none [: \ #subtitle-sv]],
+      )
+    },
+    "Supervisor" + if supervisors.len() > 1 {"s"}, grid(
+      row-gutter: 1em, ..supervisors.values().map(supervisor => [
+        #supervisor.name  (#supervisor.affiliation)#if supervisor.email != none [, #link("mailto:" + supervisor.email)]
+      ])
+    ),
+    "Examiner", [#examiner.name#if examiner.email != none [, #link("mailto:" + examiner.email)]],
+    "Course code", [#course-code],
+    ..if issn != none {
+      (
+        "ISSN",
+        issn,
+      )
+    }
+  ))
+
+  #block(if company != none [Degree project carried out at #company.join(", ", last: " and ")])
+  
+  #block()[
+      #department \ Faculty of Engineering, LTH \ Lund University #parbreak() Box 118 \ SE-221 00 Lund \ Sweden
+  ]
+
+
+  Typeset in Typst #sys.version \
+  Printed by #link("https://www.ehuset.lth.se/tryckeriet/", [Tryckeriet i E-huset])
 ]
 
-#let _back-cover(department, department-abbreviation, link, id, date) = page(paper: "sis-g5", margin: (x: 1cm, rest: 2cm))[
-  #set text(fill: lth-bronze, font: font-secondary, size: size-secondary, weight: "semibold")
-  #place(top + right, rotate(90deg, reflow: true, text(weight: "regular", size: 6pt, [Printed by Tryckeriet i E-huset, Lund #date.display("[year]")])))
-  #align(bottom + center)[
-  #image("LU_RGB_ENG.png", height: 4cm) \  
-  Series of Master's theses \
-  #department \
-  LU/LTH-#department-abbreviation #date.display("[year]")-#id \
-  #link
-  ]]
+#let _back-cover(
+  degree,
+  department,
+  department-abbreviation,
+  link,
+  id,
+  date
+) = page(
+    paper: "sis-g5",
+    margin: 5mm,
+  )[
+    #set text(fill: lu-bronze, font: font-secondary, size: size-secondary, weight: "semibold")
+    #if debug {place(center + horizon, grid(rows: 7*(1fr,), columns: 5*(1fr,), stroke: 1pt))} // Used for debugging
+    #place(top + right, dx: -5mm, dy: 0.5/7*100%, rotate(90deg, reflow: true, text(size: 6pt, [Printed by Tryckeriet i E-huset, Lund #date.display("[year]")])))
+    #place(center + bottom, dy: -1/7*100% , image("LU_RGB_ENG.png", height: 1/7*100%))
+    #place(center + bottom, dy: -1/7*100% + 2cm , [
+      Series of #degree's theses \
+      #department \
+      LU/LTH-#department-abbreviation #date.display("[year]")-#id \
+      #link
+    ]
+  )]
     
 //---------------------------------------------|  LOGIC  |---------------------------------------------//
 
@@ -375,29 +494,25 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 // Thesis template
 #let thesis(
   thesis-title: none,
+  thesis-title-sv: none,
+  thesis-subtitle: none,
+  thesis-subtitle-sv: none,
+  short-title: [#degree-level-en's thesis],
   authors: none,
   supervisors: none,
   examiner: none,
-  thesis-subtitle: none,
-  short-title: [A shorter title],
-  affiliation: none,
-  degree: none,
   course-code: [EITM01],
-  affiliations-logo: (),
+  affiliations: none,
   description: none,
   keywords: (),
-  print: false,
-  header-style: "original",
-  heading-style: "original",
-  front-cover-background: rect(width: 100%, height: 100%, fill: lth-light_brown),
+  document-style: "original",
+  front-cover-background: rect(width: 100%, height: 100%, fill: lu-light-brown),
   date: datetime.today(),
-  report-id: none,
+  report-number: none,
+  issn: none,
+  print: false,
   body
   ) = {
-
-  let department = "Department of Electrical and Information Technology"
-  let department-short = "EIT"
-  let department-link = link("http://www.eit.lth.se")
 
 // Assertions for required arguments
   assert(thesis-title != none, message: "Missing required argument 'thesis-title'.")
@@ -415,9 +530,6 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   assert(type(examiner) == dictionary,  
     message: "Variable 'examiner' must be of type dictionary (name, email)."
   )
-  assert(type(affiliations-logo) == array, 
-    message: "Variable 'affiliations-logo' must be of type array."
-  )
   assert(type(keywords) == array, 
     message: "Variable 'keywords' must be of type array."
   )
@@ -432,25 +544,18 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   )
 
   // Assertions for logic and specific values
-  if print == true {
-    assert(report-id != none, message: "Thesis must have a report-id to be printed!")
-  }
+  assert(not (report-number == none and print), message: "Thesis must have a report-id to be printed!")
   
-  assert(header-style in ("original", "novel"), 
-    message: "Variable 'header-style' must be either 'original' (default) or 'novel'."
+  assert(document-style in ("original", "novel"), 
+    message: "Variable 'doucument-style' must be either 'original' (default) or 'novel'."
   )
-  assert(heading-style in ("original", "novel"), 
-    message: "Variable 'heading-style' must be either 'original' (default) or 'novel'.")
 
-  //Selecting which header is used
-  if header-style == "original" {state("header").update(_header-original())} else if header-style == "novel" {state("header").update(_header-alternating())}
-
-  // Selecting which heading is used
-  if heading-style == "original" {
+  if document-style == "original"{
+    state("header").update(_header-original())
     state("heading").update(_ => _heading-original)
-    
   }
-  if heading-style == "novel" {
+  else if document-style == "novel"{
+    state("header").update(_header-alternating())
     state("heading").update(_ => _heading-new)
   }
   
@@ -465,7 +570,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   
   set par(
     justify: true, 
-    first-line-indent: 1cm, 
+    first-line-indent: 1.5em, 
     spacing: 1.5em,
     leading: 0.5em
   )
@@ -495,7 +600,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       outside: outside + a4-offset-width,
       rest: vertical + a4-offset-height,
       ),
-    background: [
+    background: if debug [
       #set text(size: 12pt)
       #place(center, dy: 22.5mm, stack(
         dir: ltr,
@@ -527,7 +632,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     size: size-main,
   )
 
-  show smallcaps: text.with(tracking: 0.5pt)
+  show smallcaps: set text(tracking: 0.5pt)
   
   // Line
   set line(length: 100%,
@@ -540,13 +645,11 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   show footnote.entry: set text(fill: colour-secondary)
   set footnote.entry(
     separator: line(length: 30%, stroke: 0.5pt + colour-secondary),
-    gap: 0.8em
+    gap: 1em
   )
 
   // Figures
-  set figure(supplement: [Fig.], numbering: _figure-numbering)
   show figure.where(kind: table): set figure.caption(position: top)
-  show figure.where(kind: table): set figure(supplement: [Table])
   show figure.where(kind: raw): set block(breakable: true)
   show figure: block.with(above: 3em, below: 3em)
   show figure.caption: it => {
@@ -564,6 +667,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     stroke: (x, y) => if y <= 1 { (top: 0.5pt) },
     fill: (x, y) => if y > 0 and calc.rem(y, 2) == 0  {rgb("#efefef")}
   )
+
+  // Terms, used mainly in the abbreviations or nomenclature section
+  set terms(tight: false, spacing: 5mm)
 
   // Equations
   set math.equation(supplement: none, numbering: _equation-numbering)
@@ -621,8 +727,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   // Headings
   set heading(supplement: [Section])
   show heading: set text(weight: "semibold")
-  show heading: set par(leading: 1em)
+  show heading: set par(leading: 1em, justify: false)
   show heading.where(level: 1): set heading(supplement: [Chapter])
+  show heading.where(level: 1): set block(below: 3em)
   show heading.where(level: 2): set block(above: 2em, below: 1em)
   show heading.where(level: 2): set text(size: size-sub-heading)
   show heading.where(level: 3): set block(above: 1.5em, below: 1em)
@@ -632,37 +739,71 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   show heading.where(level: 1): it => context{ pagebreak(weak: true, to: "odd") + _resetCounters() + state("heading").get()(it)}
   
   // Bibliography
-  set bibliography(style: "ieee")
+  set bibliography(title: "References" ,style: "ieee")
 
   // Quotes
   set quote(block: true)
-  show quote: set block(inset: 2.5mm)
+  show quote: set block(inset: 2mm)
 
   // Beginning of document
   
   // Front cover page, if print is true
-  if print == true {_front-cover-page(thesis-title, front-cover-background, authors, department)}
+  if print == true {_front-cover-page(
+    thesis-title,
+    front-cover-background,
+    authors,
+    degree-level-en,
+    department-en,
+  )}
 
   // Blank page
-  // pagebreak(to: "odd")
-  page(align(bottom + left, text(style: "italic", "Blank page — remove in final print.")))
-
-  // Half title
-  // _half-title-page(thesis-title, department, date)
+  if print == true {
+    page(align(bottom + left, text(style: "italic", "Blank page — remove in final print.")))
+    pagebreak(to: "odd")
+  }
   
   // Title page
-  pagebreak(to: "odd")
-  _title-page(thesis-title, thesis-subtitle, authors, supervisors, examiner, affiliation, department, ("LundUniversity_C_BLACK.png",) + affiliations-logo, date)
+  _title-page(
+    thesis-title, 
+    thesis-subtitle,
+    authors,
+    supervisors,
+    examiner,
+    degree-level-en,
+    department-en,
+    ("LundUniversity_C_BLACK.png",) + if affiliations != none {
+      affiliations.map(affiliation => affiliation.logo)
+    },
+    date
+  )
   
-  // Information of thesis
-  pagebreak(to: "odd")
-  _information-page(thesis-title, thesis-subtitle, authors, affiliation, supervisors, examiner, course-code, report-id, department, date)
+  // Information of thesis, on verso of title page
+  _information-page(
+    thesis-title,
+    thesis-title-sv,
+    thesis-subtitle,
+    thesis-subtitle-sv,
+    authors,
+    if affiliations != none {affiliations.map(affiliation => affiliation.name)},
+    supervisors,
+    examiner,
+    course-code,
+    issn,
+    department-en,
+    date
+  )
 
   counter(page).update(1)
   body
 
   // Backcover, if print is true
-  if print == true {_back-cover(department, department-short, department-link, report-id, date)}
+  if print == true {_back-cover(
+    degree-level-en,
+    department-en,
+    department-short-en,
+    department-link,
+    report-number,
+    date)}
 }
 
 //---------------------------------------------|  POPULAR SCIENCE SUMMARY |---------------------------------------------//
@@ -692,7 +833,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   assert(lang in ("sv", "en"), 
     message: "Variable 'lang' must be either 'en' or 'sv' ('sv' by default)."
   )
-
+  
   // Assertions for variable types
   assert(type(authors) == array, 
     message: "Variable 'authors' must be of type array."
@@ -709,7 +850,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   // Dictionary containing predetermined words and sentences in both english and swedish.
   let language-fields = (
     sv: (
-      department: "Institutionen för elektro- och informationsteknik",
+      department: department-sv,
       faculty: "LTH | Lunds Universitet",
       degree-project: "Examensarbete",
       student-singular: "Student",
@@ -720,11 +861,12 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       popular-science-summary: "Populärvetenskaplig sammanfattning",
       presented: "Presenterad",
       availability: "Tillgänglig vid",
-      figure-supplement: "Figur"
+      figure-supplement: "Figur",
+      and-label: "och"
     ),
     
     en: (
-      department: "Department of Electrical and Information Technology",
+      department: department-en,
       faculty : "LTH | Lund University",
       degree-project : "Degree Project",
       student-singular : "Student",
@@ -735,15 +877,15 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       popular-science-summary: "Popular Science Summary",
       presented: "Presented",
       availability: "Available at",
-      figure-supplement: "Figure"
+      figure-supplement: "Figure",
+      and-label: "and"
     )
   )
 
   // Information box about the degree project found in the top of the paper
   let information() = {
-    set align(top)
-    set par(spacing: 1em)
     set text(size: size-secondary)
+    set par(first-line-indent: 0pt, spacing: 5mm)
     
     let spacing = 0.5em
     let students = ""
@@ -751,42 +893,59 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     
     if authors.len() > 1 {students = "students-plural"} else {students = "student-singular"}
     if supervisors.len() > 1 {supervisor-label = "supervisors-plural"} else {supervisor-label = "supervisor-singular"}
-    box(stroke: (left: (thickness: 1.5pt, paint: lth-bronze, cap: "round")), outset: 3mm)[
-      
-      #language-fields.at(lang).at("department") | #language-fields.at(lang).at("faculty") | #language-fields.at(lang).at("presented") 
-      #if lang == "sv" {
-        lower(presentation-date.display("[day padding:none] [month repr:long] [year]"))
-      } else {
-        presentation-date.display("[day padding:none] [month repr:long] [year]")
-      }
-      #block(above: 5mm, below: 5mm)[
+    box(
+      stroke: (left: (thickness: 1pt, paint: lu-bronze, cap: "round")),
+      outset: 3mm,
+      [
+        #language-fields.at(lang).at("department") | #language-fields.at(lang).at("faculty") | #language-fields.at(lang).at("presented") #presentation-date.display("[day padding:none] [month repr:long] [year]") 
+        
+        #parbreak()
+        
         #strong(upper(language-fields.at(lang).at("degree-project"))) #h(spacing) #original-title #linebreak()
-        #strong(upper(language-fields.at(lang).at(students))) #h(spacing) #authors.map(author => author.name).join(" & ") #linebreak()
-        #strong(upper(language-fields.at(lang).at(supervisor-label))) #h(spacing) #supervisors.values().map(supervisor => [#supervisor.name  (#supervisor.affiliation)]).join(", ") #linebreak()
+        #strong(upper(language-fields.at(lang).at(students))) #h(spacing) #authors.map(author => author.name).join(", ", last: " & ")
+        #linebreak()
+        #strong(upper(language-fields.at(lang).at(supervisor-label))) #h(spacing) #supervisors.values().map(supervisor => [#supervisor.name (#supervisor.affiliation)]).join(", ", last: " " + language-fields.at(lang).at("and-label") + " ") #linebreak()
         #strong(upper(language-fields.at(lang).at("examiner"))) #h(spacing) #examiner.name
-      ]
-      #if thesis-link != none [#parbreak() #language-fields.at(lang).at("availability") #link(thesis-link)]
-    ]
-  }
-  
-  set text(size: size-main, font: font-secondary, lang: lang)
-  set heading(level: 2, outlined: false, bookmarked: false)
-  set par(spacing: 0.5em)
-  set figure(supplement: language-fields.at(lang).at("figure-supplement"), numbering: "1")
-  set document(author: authors.map(author => author.name), date: presentation-date, title: summary-title)
-  
-  show link: set text(fill: lth-blue)
 
+        #parbreak()
+
+        #if thesis-link != none [#language-fields.at(lang).at("availability") #link(thesis-link)]
+      ]
+    )
+  }
+
+  set text(size: size-main, font: font-secondary, lang: lang)
+  
+  set heading(level: 2, outlined: false, bookmarked: false)
+  show heading: it => context {h(- par.first-line-indent.amount); it.body + [ ]}
+  show heading: set text(font: font-main, fill: lu-bronze)
+  show heading: smallcaps
+  
+  set figure(supplement: language-fields.at(lang).at("figure-supplement"), numbering: "1")
+  set document(
+    author: authors.map(author => author.name),
+    date: presentation-date,
+    title: summary-title
+  )
+  set par(justify: true, first-line-indent: (amount: 1em, all: true))
+  
+  show title: set text(size: size-heading, font: font-main,  fill: lu-bronze)
+  
+  show link: set text(fill: lu-blue)
+  
   // The paper itself
-  page(margin: (top: 1.5cm))[
-    #block(below: 1.5em+ 3mm, information())
-    #par([#language-fields.at(lang).at("popular-science-summary") | *#authors.map(author => author.name).join(" & ")*])
-    \
-    #par(strong(text(size: size-heading, font: font-main,  fill: lth-bronze, summary-title))) \
-    #set par(justify: true, first-line-indent: 1em)
-    #par(strong(text(lead-paragraph, font: font-main, size: size-sub-sub-heading)))
-    #v(1em)
-    #columns(2, gutter: 5%, body)
+  page(margin: (top: 1.5cm, rest: 2cm))[
+    #block(below: 2em, 
+      grid(
+        rows: 4,
+        gutter: 1.5em,
+        information(),
+        [#language-fields.at(lang).at("popular-science-summary") | *#authors.map(author => author.name).join(", ", last: " & ")*],
+        title(),
+        par(first-line-indent: 0pt, strong(text(lead-paragraph, font: font-main, size: size-sub-sub-heading)))
+      )
+    )
+    #columns(2, gutter: 2em, body)
   ]
 }
 
@@ -833,9 +992,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   // Dictionary containing predetermined words and sentences in both english and swedish.
   let language-fields = (
     sv : (
-      subtitle-phrase: "Ett Måldokument för Examensarbete på Avancerad Nivå",
+      subtitle-phrase: "Ett Måldokument för Examensarbete på " + str(degree-level-sv),
       by-phrase: "Av",
-      department-phrase: [Instutitionen för elektro- och informationteknik \ Lunds Tekniska Högskola, LTH, Lunds Universitet \ SE-221 00 Lund, Sverige],
+      department-phrase: [#department-sv \ Lunds Tekniska Högskola, LTH, Lunds Universitet \ SE-221 00 Lund, Sverige],
       student-singular: "Student",
       student-plural: "Studenter",
       civic-number-singular: "Personnummer",
@@ -850,9 +1009,9 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       signing-line: "Detta måldokument är godkänt av",
     ),
     en: (
-      subtitle-phrase: "A Goal Document for Master's Thesis Work",
+      subtitle-phrase: "A Goal Document for " + str(degree-level-en) +  "'s Thesis Work",
       by-phrase: "By",
-      department-phrase: [Department of Electrical and Information Technology \ Faculty of Engineering, LTH, Lund University \ SE-221 00 Lund, Sweden],
+      department-phrase: [#department-en \ Faculty of Engineering, LTH, Lund University \ SE-221 00 Lund, Sweden],
       student-singular: "Student",
       student-plural: "Students",
       civic-number-singular: "Civic registration number",
@@ -877,10 +1036,10 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
     
     block(stroke: (left: (thickness: 1pt)), outset: 2mm)[
       #set par(leading: 0.75em)
-      #language-fields.at(lang).at(student-label): #authors.map(author => author.name).join(language-fields.at(lang).at("and-label")) 
+      #language-fields.at(lang).at(student-label): #authors.map(author => author.name).join(", ", last: language-fields.at(lang).at("and-label")) 
       #linebreak()
-      #language-fields.at(lang).at(civic-number-label): #authors.map(author => author.civic-number).join(language-fields.at(lang).at("and-label")) #linebreak()
-      #language-fields.at(lang).at("email"): #authors.map(author => author.email).join(language-fields.at(lang).at("and-label"))
+      #language-fields.at(lang).at(civic-number-label): #authors.map(author => author.civic-number).join(", ", last: language-fields.at(lang).at("and-label")) #linebreak()
+      #language-fields.at(lang).at("email"): #authors.map(author => author.email).join(",", last: language-fields.at(lang).at("and-label"))
       #linebreak()
       #language-fields.at(lang).at("academic-supervisor"): #academic-supervisor.name, #link("mailto:" + academic-supervisor.email )
       #linebreak()

@@ -1,16 +1,16 @@
-#import "../src/exjobb_eit.typ": goal-document, project-plan
+#import "src/exjobb_eit.typ": goal-document, project-plan
 #import "metadata.typ": *
 #import "@preview/gantty:0.5.1": gantt
 
 #let lang = "en"
 
 #goal-document(
-  tentative-title:title,
+  tentative-title: title,
   authors: authors,
   start-date: start-date,
   end-date: end-date,
   course-code: "ETIM01",
-  academic-supervisor: supervisors.first(),
+  academic-supervisor: supervisors.at("academic"),
   examiner: examiner,
   lang: lang,
 )[
@@ -41,7 +41,7 @@
 ]
 
 #project-plan(
-  academic-supervisor: supervisors.first(),
+  academic-supervisor: supervisors.at("academic"),
   examiner: examiner,
   lang: lang
 )[

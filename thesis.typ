@@ -1,21 +1,18 @@
-#import "../src/exjobb_eit.typ": thesis, mainmatter, frontmatter, backmatter, flexCaption
+#import "src/exjobb_eit.typ": thesis, mainmatter, frontmatter, backmatter, flexCaption
 #import "metadata.typ": *
-#import "@preview/lilaq:0.5.0" as lq
-
-#let keywords = ("Keyword 1", "Keyword 2")
 
 #show: thesis.with(
-	print: false,
-	thesis-title: title,
+  thesis-title: title,
+  thesis-subtitle: subtitle,
   authors: authors,
   supervisors: supervisors,
-  thesis-subtitle: subtitle,
-	examiner: examiner,
-  affiliations: affiliations,
-	keywords: keywords,
-	description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
+  examiner: examiner,
+  affiliations: affiliation,
+  keywords: keywords,
+  description: "This is an example render made from the exjobb_eit.typ template made by Lucas Ekholm (E22).",
   date: end-date,
-  report-id: none,
+  issn: none,
+  print: false,
 )
 
 #show: frontmatter
@@ -67,32 +64,9 @@ The equations above are @divergence and @ampere-maxwell. This is @intro but belo
 === A section which won't appear in the outline on #ref(<outline>, form: "page"). <test2>
 #lorem(50)
 
-==== These sections keep going!
-
-#lorem(50)
-
-#figure(
-	lq.diagram(
-		lq.quiver(
-			lq.linspace(-5, 5, num: 20),
-			lq.linspace(-5, 5, num: 20),
-			(x, y) => {
-				let a = x*x - y*y
-				return (calc.sin(y), calc.sin(x))
-			},
-			color: (x, y, u, v) => calc.norm(u, v),
-			map: lq.color.map.lipari,
-			scale: 0.5,
-			min: 0,
-			max: 2,
-		)
-	),
-	caption: flexCaption([An example figure using the package Lilaq. @lilaq], [An example figure using the package Lilaq.])
-) <vector-field>
-
 == Another test section
 
-#lorem(100) #footnote[https://www.lth.se]
+#lorem(10) #footnote[https://www.lth.se]
 
 #let l = counter("letters")
 #let letter() = block[
@@ -123,8 +97,6 @@ Above @figureB is next to @figureC. By using the #raw("#flexCaption(long caption
 
 $ F_(n) = F_(n-1) + F_(n-2), #h(1cm) cases(F_0 = 0, F_1 = 1) $
 
-#lorem(20)
-
 #let count = 15
 #let nums = range(1, count + 1)
 #let fib(n) = (
@@ -141,7 +113,7 @@ caption: [The Fibonacci sequence up to n = #count.])
 
 = A word on Typst referencing
 
-On #ref(<ref>, form: "page") you can find links. @latex-guide provides a guide for past LaTeX users on the differences between the two typesetting languages, including what's native or not native, which macros map to which function etc. @cite and @bibliography links to information on how to cite and reference different sources. Typst includes support for both its native YAML-based format and BibTeX. @universe gives a link to the Typst Universe. On this page you can find packages which aid in your workflow, both in terms of styling and automation. For example @vector-field was made using lilaq, a package used to make graphs inside the Typst environment. Another good package is Zap which is used to make circuit diagrams much like TikZ. @zap
+On #ref(<ref>, form: "page") you can find links. @latex-guide provides a guide for past LaTeX users on the differences between the two typesetting languages, including what's native or not native, which macros map to which function etc. @cite and @bibliography links to information on how to cite and reference different sources. Typst includes support for both its native YAML-based format and BibTeX. @universe gives a link to the Typst Universe. On this page you can find packages which aid in your workflow, both in terms of styling and automation. Zap for example is used to make circuit diagrams much like TikZ. @zap
 
 For documentation on all functions, markup- and styling commands, see @documentation.
 
@@ -153,11 +125,6 @@ For documentation on all functions, markup- and styling commands, see @documenta
 		url = {https://typst.app/docs/guides/guide-for-latex-users/},
 		publisher = {Typst},
 		date = {2025-10-22}
-	}
-
-	@online{lilaq,
-		title = {Lilaq - Typst Universe},
-		url = {https://typst.app/universe/package/lilaq/},
 	}
 
 	@online{bibliography,
@@ -186,7 +153,7 @@ For documentation on all functions, markup- and styling commands, see @documenta
 	}
 ```.text
 
-#bibliography(bytes(works), title: "References") <ref>
+#bibliography(bytes(works)) <ref>
 
 #show: backmatter
 
@@ -212,6 +179,7 @@ For documentation on all functions, markup- and styling commands, see @documenta
 	    }
 	}
 	```]),
+ // kind: raw,
 	caption: "Code snippet for insertionsort written in C."
 )
 
