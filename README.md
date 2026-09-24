@@ -5,50 +5,36 @@
 
 An _unofficial_ Typst template made from the LaTeX version of the degree project at EIT, LTH.
 
+# thesis.typ
+
 ## Configuration
 
 ### Document Fields
 
-| Parameter | Type | Default | Description |
+| Parameter | Type | Required / Default | Description |
 | :--- | :--- | :--- | :--- |
-| `thesis_title` | `content/str` | `[The Thesis title]` | The main title of your project. |
-| `subtitle` | `content/str` | `none` | An optional subtitle. |
-| `short_title` | `content/str` | `[A shorter title]` | Used in headers |
-| `authors` | `array` | `()` | List of dictionaries: `(name: "", affiliation: "", mail: "")`. |
-| `supervisors` | `array` | `()` | List of strings or content. |
-| `examinor` | `content/str` | `none` | Name of your examiner. |
-| `affiliations` | `array` | `()` | Academic or corporate affiliations. |
-| `degree` | `content/str` | `none` | Adds a line for which degree the thesis is meant for. Optional. |
-| `coursecode` | `content/str` | `[EITM01]` | The coursecode for this thesis project. |
-| `front_images` | `array` | `()` | Paths to images for the cover page. |
-| `front-cover-background` | `content` | `rect(width: 100%, height: 100%, fill: lth_light_brown)` | Add a background to the front cover. |
-| `keywords` | `array` | `()` | List of strings for metadata. |
-| `description` | `content` | `none` | Description for metadata. |
-| `date` | `datetime` | `datetime.today()` | Document date. |
-
-### Styling Options
-
-| Parameter | Options | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `header_style` | `"original"`, `"mod"`, `"alternating"` | `"original"` | Top-of-page navigation style. |
-| `heading_style` | `"original"`, `"mod"` | `"original"` | Section title formatting. |
-| `print` | `true`, `false` | `false` | `true` binds on the right and renders a front cover page; `false` shows G5 guide boxes and binds to the left. |
+| `thesis-title` | `string` / `content` | **Required** | The main title of the thesis. |
+| `thesis-title-sv` | `string` / `content` | `none` | Swedish translation of the thesis title. |
+| `thesis-subtitle` | `string` / `content` | `none` | Optional subtitle for the thesis. |
+| `thesis-subtitle-sv` | `string` / `content` | `none` | Swedish translation of the subtitle. |
+| `short-title` | `content` / `string` | `[#degree-level-en's thesis]` | Shortened title used in page headers. |
+| `authors` | `array` | **Required** | List of authors. Expected structure:<br>`((name: "", email: ""),)` |
+| `supervisors` | `dictionary` | **Required** | Dictionary containing supervisor details. Expected keys/structure:<br>`academic: (name: "", email: "", affiliation: "")`<br>`company: (name: "", email: "", affiliation: "")` |
+| `examiner` | `dictionary` | **Required** | Dictionary containing examiner details. Expected structure:<br>`(name: "", email: "")` |
+| `course-code` | `content` / `string` | `[EITM01]` | Course code for the thesis module. |
+| `affiliations` | `array` / `dictionary` / `content` | `none` | Optional author or university affiliations. |
+| `description` | `string` / `content` | `none` | Optional brief summary or metadata description. |
+| `keywords` | `array` | `()` | List of keywords for document metadata. |
+| `document-style` | `string` | `"original"` | Layout style for headers/headings. Allowed values: `"original"` or `"novel"`. |
+| `front-cover-background` | `content` | `rect(width: 100%, height: 100%, fill: lu-light-brown)` | Visual element or color definition for the cover background. |
+| `date` | `datetime` | `datetime.today()` | Publication or submission date. |
+| `report-number` | `string` / `integer` | `none` | Report ID number. **Required if `print` is set to `true`**. |
+| `issn` | `string` | `none` | ISSN identifier for published prints. |
+| `print` | `bool` | `false` | Enables print mode formatting (requires `report-number`). |
 
 ---
 
-## How to Use
-
-1.  **Download** this repository and place it in your project folder.
-2.  **Import** the template at the top of your main `.typ` file:
-
-```typst
-#import "PATH/exjobb_eit.typ": *
-
-#show: doc.with(
-  ..params
-)
-```
-3. Use the **state functions** like below:
+Use the **state functions** like below:
 ```typst
 #show: frontmatter
 
@@ -62,3 +48,44 @@ An _unofficial_ Typst template made from the LaTeX version of the degree project
 
 // Here goes your appendicies
 ```
+
+
+# Popular science summary
+
+## Document fields
+| Field | Type | Required / Default | Description |
+| :--- | :--- | :--- | :--- |
+| `summary-title` | `string` / `content` | **Required** | The title of the thesis summary. |
+| `original-title` | `string` / `content` | **Required** | The original title of the full thesis. |
+| `authors` | `array` | **Required** | List of author names/details (e.g., `("Author Name",)`). |
+| `supervisors` | `dictionary` | **Required** | Dictionary containing supervisor details. Expected keys/structure:<br>`academic: (name: "", email: "", affiliation: "")`<br>`company: (name: "", email: "", affiliation: "")` |
+| `examiner` | `dictionary` | **Required** | Dictionary containing examiner details. Expected keys/structure:<br>`(name: "", email: "")` |
+| `lead-paragraph` | `string` / `content` | `none` | Optional introductory summary/lead text. |
+| `thesis-link` | `string` | `none` | Optional link to the full thesis document/repository. |
+| `presentation-date` | `datetime` | `datetime.today()` | The date of the presentation. Defaults to current date. |
+| `lang` | `string` | `"sv"` | Language setting for the document. Allowed values: `"sv"` or `"en"`. |
+
+# Goal docuemnt
+
+## Document fields
+
+| Parameter | Type | Required / Default | Description |
+| :--- | :--- | :--- | :--- |
+| `tentative-title` | `string` / `content` | **Required** | The working or tentative title for the thesis proposal/project. |
+| `authors` | `array` | **Required** | List of authors or student details. |
+| `start-date` | `datetime` | **Required** | Start date of the thesis project. |
+| `end-date` | `datetime` | **Required** | End date or planned completion date of the project. |
+| `course-code` | `string` / `content` | **Required** | Course code for the thesis module. |
+| `academic-supervisor` | `string` / `dictionary` | **Required** | Details or name of the assigned academic supervisor. |
+| `examiner` | `string` / `dictionary` | **Required** | Details or name of the assigned examiner. |
+| `lang` | `string` | `"en"` | Language setting for the document. Allowed values: `"en"` or `"sv"`. |
+
+# Project plan
+
+## Document fields
+
+| Parameter | Type | Required / Default | Description |
+| :--- | :--- | :--- | :--- |
+| `academic-supervisor` | `string` / `dictionary` | **Required** | Details or name of the assigned academic supervisor. |
+| `examiner` | `string` / `dictionary` | **Required** | Details or name of the assigned examiner. |
+| `lang` | `string` | `"en"` | Language setting for the document. Allowed values: `"en"` or `"sv"`. |
