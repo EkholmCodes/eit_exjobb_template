@@ -117,43 +117,7 @@ On #ref(<ref>, form: "page") you can find links. @latex-guide provides a guide f
 
 For documentation on all functions, markup- and styling commands, see @documentation.
 
-
-//This can also be in a seperate .bib/.yml file! Then you would simply write the relative path in #bibliography("PATH", ..)
-#let works = ```bib
-	@online{latex-guide,
-		title = {Guide for LaTeX users},
-		url = {https://typst.app/docs/guides/guide-for-latex-users/},
-		publisher = {Typst},
-		date = {2025-10-22}
-	}
-
-	@online{bibliography,
-		title = {Bibliography function},
-		url = {https://typst.app/docs/reference/model/bibliography/},	
-	}
-
-	@online{cite,
-		title = {Cite function},
-		url = {https://typst.app/docs/reference/model/cite/}
-	}
-
-	@online{documentation,
-		title = {Typst Documentation},
-		url = {https://typst.app/docs}
-	}
-
-	@online{universe,
-		title = {Typst Universe},
-		url = {https://typst.app/universe/}
-	}
-
-	@online{zap,
-		title = {Zap - Typst Universe},
-		url = {https://typst.app/universe/package/zap}	
-	}
-```.text
-
-#bibliography(bytes(works)) <ref>
+#bibliography("refs.bib") <ref>
 
 #show: backmatter
 
