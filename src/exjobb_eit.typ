@@ -600,7 +600,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
       outside: outside + a4-offset-width,
       rest: vertical + a4-offset-height,
       ),
-    background: if debug [
+    background: [
       #set text(size: 12pt)
       #place(center, dy: 22.5mm, stack(
         dir: ltr,
